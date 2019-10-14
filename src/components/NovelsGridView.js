@@ -1,12 +1,14 @@
 // @flow
 
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
   Image,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
+import { NavigationContext } from "react-navigation";
 import { FlatGrid } from "react-native-super-grid";
 
 import type { Novel } from "~/sources/API";
@@ -25,7 +27,7 @@ export default function NovelsGridView({ novels, size = 100, fetch, hasMore }: {
     <FlatGrid
       items={items}
       itemDimension={size}
-      renderItem={NovelView}
+      renderItem={(props) => <NovelView {...props} />}
       onEndReached={fetch}
       onEndReachedThreshold={0.0}
     />
@@ -35,19 +37,25 @@ export default function NovelsGridView({ novels, size = 100, fetch, hasMore }: {
 function NovelView({ item }: {
   item: Novel | null,
 }) {
+  const navigation = useContext(NavigationContext);
+
   if (item == null) {
     return <Text style={styles.loading}>Loading…</Text>;
   }
 
+  const navigate = () => navigation.navigate("Novel", { novel: item });
+
   return (
     <View key={item.id} style={styles.novel}>
-      <Image
-        style={styles.cover}
-        source={{ uri: item.image }}
-      />
-      <Text style={styles.title} numberOfLines={4}>
-        {item.title}
-      </Text>
+      <TouchableOpacity onPress={navigate}>
+        <Image
+          style={styles.cover}
+          source={{ uri: item.image }}
+        />
+        <Text style={styles.title} numberOfLines={4}>
+          {item.title}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }

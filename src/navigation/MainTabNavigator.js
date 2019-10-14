@@ -23,10 +23,36 @@ CatalogStack.navigationOptions = {
   tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-information-circle" />,
 };
 
-CatalogStack.path = "";
+const LibraryStack = createStackNavigator(
+  Pages,
+  {
+    initialRouteName: "Library",
+  },
+  config,
+);
+
+LibraryStack.navigationOptions = {
+  tabBarLabel: "Library",
+  tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
+};
+
+const DownloadsStack = createStackNavigator(
+  Pages,
+  {
+    initialRouteName: "Downloads",
+  },
+  config,
+);
+
+DownloadsStack.navigationOptions = {
+  tabBarLabel: "Downloads",
+  tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-download" />,
+};
 
 const tabNavigator = createBottomTabNavigator({
   CatalogStack,
+  LibraryStack,
+  DownloadsStack,
 });
 
 tabNavigator.path = "";
