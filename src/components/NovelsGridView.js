@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { FlatGrid } from "react-native-super-grid";
 
-import type { Novel } from "../sources/API";
+import type { Novel } from "~/sources/API";
 
 type Fetch = () => void;
 

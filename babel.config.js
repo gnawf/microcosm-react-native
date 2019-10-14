@@ -8,6 +8,14 @@ module.exports = function(api) {
     ],
     plugins: [
       "transform-inline-environment-variables",
+      [
+        "babel-plugin-root-import",
+        {
+          root: __dirname,
+          rootPathPrefix: '~/',
+          rootPathSuffix: 'src',
+        },
+      ],
     ],
   };
 };

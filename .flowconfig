@@ -36,5 +36,7 @@ suppress_type=$FixMe
 suppress_comment= \\(.\\|\n\\)*\\$FlowFixMe
 suppress_comment= \\(.\\|\n\\)*\\$FlowIssue
 
+module.name_mapper='^~/\(.*\)$' -> '<PROJECT_ROOT>/src/\1'
+
 [version]
 0.109.0

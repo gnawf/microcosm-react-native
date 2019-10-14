@@ -1,10 +1,10 @@
 // @flow
 
-import { Chapters, Novels, Source } from "../API";
+import { Chapters, Novels, Source } from "~/sources/API";
 
 const cheerio = require("cheerio-without-node-native");
 
-import type { Chapter, Novel } from "../API";
+import type { Chapter, Novel } from "~/sources/API";
 
 const host = "https://readnovelfull.com";
 
