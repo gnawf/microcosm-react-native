@@ -16,7 +16,9 @@ export type Chapter = {
 }
 
 export interface Source {
+  id: string;
   name: string;
+  hosts: Array<string>;
   novels: Novels;
   chapters: Chapters;
 }

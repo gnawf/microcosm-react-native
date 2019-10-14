@@ -3,27 +3,30 @@ import { Platform } from "react-native";
 import { createStackNavigator, createBottomTabNavigator } from "react-navigation";
 
 import TabBarIcon from "~/components/TabBarIcon";
-import NovelsPage from "~/pages/NovelsPage";
+import Pages from "~/navigation/Pages";
 
 const config = Platform.select({
   web: { headerMode: "screen" },
   default: {},
 });
 
-const HomeStack = createStackNavigator(
-  { Home: NovelsPage },
-  config
+const CatalogStack = createStackNavigator(
+  Pages,
+  {
+    initialRouteName: "Catalog",
+  },
+  config,
 );
 
-HomeStack.navigationOptions = {
-  tabBarLabel: "Home",
+CatalogStack.navigationOptions = {
+  tabBarLabel: "Catalog",
   tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-information-circle" />,
 };
 
-HomeStack.path = "";
+CatalogStack.path = "";
 
 const tabNavigator = createBottomTabNavigator({
-  HomeStack,
+  CatalogStack,
 });
 
 tabNavigator.path = "";

@@ -1,20 +1,26 @@
 // @flow
 
-import { Chapters, Novels, Source } from "~/sources/API";
+import cheerio from "cheerio-without-node-native";
 
-const cheerio = require("cheerio-without-node-native");
+import { Chapters, Novels, Source } from "~/sources/API";
 
 import type { Chapter, Novel } from "~/sources/API";
 
-const host = "https://readnovelfull.com";
+const host = "readnovelfull.com";
+
+const origin = `https://${host}`;
 
 export default class RFNSource implements Source {
+  id: string;
   name: string;
+  hosts: Array<string>;
   novels: Novels;
   chapters: Chapters;
 
   constructor() {
-    this.name = "read-full-novels";
+    this.id = "read-full-novel";
+    this.name = "Read Full Novel";
+    this.hosts = [host];
     this.novels = new _Novels();
     this.chapters = new _Chapters();
   }
@@ -37,7 +43,7 @@ class _Novels implements Novels {
   }) {
     const novels: Array<Novel> = [];
 
-    const url = `${host}/search?keyword=${encodeURIComponent(query)}&page=${page}`;
+    const url = `${origin}/search?keyword=${encodeURIComponent(query)}&page=${page}`;
 
     const result = await fetch(url);
 
