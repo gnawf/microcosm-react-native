@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@babel/preset-flow": "^7.0.0",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "babel-preset-expo": "^7.0.0",
     "jest-expo": "^35.0.0"
   },

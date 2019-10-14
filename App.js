@@ -6,6 +6,7 @@ import { Platform, StatusBar, StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import AppNavigator from "./src/navigation/AppNavigator";
+import bootstrap from "./bootstrap";
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -13,7 +14,7 @@ export default function App(props) {
   if (!isLoadingComplete && !props.skipLoadingScreen) {
     return (
       <AppLoading
-        startAsync={loadResourcesAsync}
+        startAsync={init}
         onError={handleLoadingError}
         onFinish={() => handleFinishLoading(setLoadingComplete)}
       />
@@ -28,7 +29,9 @@ export default function App(props) {
   );
 }
 
-async function loadResourcesAsync() {
+async function init() {
+  bootstrap();
+
   await Promise.all([
     Font.loadAsync({
       ...Ionicons.font,
