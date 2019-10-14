@@ -4,12 +4,12 @@ import React, { useContext } from "react";
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
 import { NavigationContext } from "react-navigation";
 import { FlatGrid } from "react-native-super-grid";
+import { Image } from "react-native-elements";
 
 import type { Novel } from "~/sources/API";
 
