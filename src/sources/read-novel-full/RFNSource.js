@@ -27,6 +27,28 @@ export default class RFNSource implements Source {
 }
 
 class _Novels implements Novels {
+  async get(id) {
+    const url = `${origin}/${id}.html`;
+
+    const result = await fetch(url);
+
+    const body = await result.text();
+
+    const $ = cheerio.load(body);
+
+    const title = $(".title").text();
+    const description = $(".desc-text").text();
+    const image = $(".book img").attr("src");
+
+    return {
+      id,
+      url,
+      title,
+      description,
+      image: image.replace(/t-\d+x\d+/i, "t-300x439"),
+    };
+  }
+
   async list({ cursor }) {
     return this.query({
       page: (cursor: number),
@@ -86,11 +108,11 @@ class _Novels implements Novels {
 }
 
 class _Chapters implements Chapters {
-  async get(key: any) {
+  async get(key) {
     return null;
   }
 
-  async list(novel: string) {
+  async list(id) {
     return [];
   }
 }

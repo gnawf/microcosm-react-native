@@ -1,7 +1,10 @@
 // @flow
 
+type NovelKey = string;
+type ChapterKey = string;
+
 export type Novel = {
-  +id: string,
+  +id: NovelKey,
   +url: string,
   +title: string,
   +description: ?string,
@@ -9,7 +12,7 @@ export type Novel = {
 };
 
 export type Chapter = {
-  +id: string,
+  +id: ChapterKey,
   +title: string,
   +contents: string,
   +url: string,
@@ -24,6 +27,7 @@ export interface Source {
 }
 
 export interface Novels {
+  get(id: NovelKey): Promise<?Novel>;
   list(args: {
     cursor: any,
   }): Promise<Array<Novel>>;
@@ -31,8 +35,8 @@ export interface Novels {
 }
 
 export interface Chapters {
-  get(key: any): Promise<?Chapter>;
-  list(novel: string, args: {
+  get(id: ChapterKey): Promise<?Chapter>;
+  list(id: NovelKey, args: {
     cursor: any,
   }): Promise<Array<Chapter>>;
 }
