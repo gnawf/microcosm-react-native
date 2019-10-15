@@ -1,13 +1,14 @@
 import { createBrowserApp } from "@react-navigation/web";
 import { createSwitchNavigator } from "react-navigation";
 
-import MainTabNavigator from "./MainTabNavigator";
+import MainTabNavigator from "~/navigation/MainTabNavigator";
+import Pages from "~/navigation/Pages";
 
 const switchNavigator = createSwitchNavigator({
-  // You could add another route here for authentication.
-  // Read more at https://reactnavigation.org/docs/en/auth-flow.html
   Main: MainTabNavigator,
+  ...Pages,
 });
+
 switchNavigator.path = "";
 
-export default createBrowserApp(switchNavigator, { history: "hash" });
+export default createBrowserApp(switchNavigator);
