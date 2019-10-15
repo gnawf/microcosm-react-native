@@ -36,4 +36,4 @@ const value: SourceContextValue = {
   byId,
 };
 
-export const SourceContext = createContext<SourceContextValue>(value);
+export default createContext<SourceContextValue>(value);

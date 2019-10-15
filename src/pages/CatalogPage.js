@@ -20,7 +20,7 @@ import {
 import { NavigationContext } from "react-navigation";
 
 import NovelsGridView from "~/components/NovelsGridView";
-import { SourceContext } from "~/sources/SourceContext";
+import SourceContext from "~/sources/SourceContext";
 
 import type { Source } from "~/sources/API";
 

@@ -13,7 +13,7 @@ import { NavigationContext } from "react-navigation";
 
 import NovelsGridView from "~/components/NovelsGridView";
 import RFNSource from "~/sources/read-novel-full/RFNSource";
-import { SourceContext } from "~/sources/SourceContext";
+import SourceContext from "~/sources/SourceContext";
 
 import type { Source } from "~/sources/API";
 
