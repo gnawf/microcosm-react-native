@@ -1,14 +1,12 @@
 // @flow
 
-import cheerio from "cheerio-without-node-native";
-
 import { Chapters, Novels, Source } from "~/sources/API";
+import URL from "~/utils/URL";
+import HTML from "~/utils/HTML";
 
 import type { Chapter, Novel } from "~/sources/API";
 
-const host = "readnovelfull.com";
-
-const origin = `https://${host}`;
+const RFN_URL = URL.parse("https://readnovelfull.com");
 
 export default class RFNSource implements Source {
   id: string;
@@ -20,7 +18,7 @@ export default class RFNSource implements Source {
   constructor() {
     this.id = "read-full-novel";
     this.name = "Read Full Novel";
-    this.hosts = [host];
+    this.hosts = [RFN_URL.host];
     this.novels = new _Novels();
     this.chapters = new _Chapters();
   }
@@ -28,17 +26,17 @@ export default class RFNSource implements Source {
 
 class _Novels implements Novels {
   async get(id) {
-    const url = `${origin}/${id}.html`;
+    const url = RFN_URL.resolve(`/${id}.html`);
 
     const result = await fetch(url);
 
     const body = await result.text();
 
-    const $ = cheerio.load(body);
+    const $ = HTML.load(body);
 
-    const title = $(".title").text();
-    const description = $(".desc-text").text();
-    const image = $(".book img").attr("src");
+    const title = $(".title").first().text().trim();
+    const description = $(".desc-text").first().text().trim();
+    const image = $(".book img").first().attr("src");
 
     return {
       id,
@@ -65,13 +63,13 @@ class _Novels implements Novels {
   }) {
     const novels: Array<Novel> = [];
 
-    const url = `${origin}/search?keyword=${encodeURIComponent(query)}&page=${page}`;
+    const url = RFN_URL.resolve(`/search?keyword=${encodeURIComponent(query)}&page=${page}`);
 
     const result = await fetch(url);
 
     const body = await result.text();
 
-    const $ = cheerio.load(body);
+    const $ = HTML.load(body);
 
     const rows = $(".list-novel .row");
 
