@@ -5,6 +5,7 @@ import SourcePage from "~/pages/SourcePage";
 import DownloadsPage from "~/pages/DownloadsPage";
 import LibraryPage from "~/pages/LibraryPage";
 import NovelPage from "~/pages/NovelPage";
+import ChapterPage from "~/pages/ChapterPage";
 
 const Pages: {
   [string]: any,
@@ -14,6 +15,7 @@ const Pages: {
   Downloads: DownloadsPage,
   Library: LibraryPage,
   Novel: NovelPage,
+  Chapter: ChapterPage,
 };
 
 export default Pages;

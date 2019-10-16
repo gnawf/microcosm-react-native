@@ -106,8 +106,47 @@ class _Novels implements Novels {
 }
 
 class _Chapters implements Chapters {
-  async get(key) {
-    return null;
+  async get(url) {
+    const chapters: Array<Chapter> = [];
+
+    const result = await fetch(url);
+
+    const body = await result.text();
+
+    const $ = HTML.load(body);
+
+    const id = URL.parse(url).path.match(/\/(.*?)(?:\.[a-z]+)$/)[1];
+
+    const title = $(".chr-title").text().match(/chapter\s+\d+/i)[0];
+
+    const content = $("#chr-content").first();
+    content.find("br, script").remove();
+    content.find("p").forEach((paragraph) => {
+      if (paragraph.text().trim().length === 0) {
+        paragraph.remove();
+      }
+    });
+    const contents = content.html();
+
+    let previous, next;
+
+    $(".chr-nav a.btn[href]").forEach((anchor) => {
+      const text = anchor.text().toLowerCase();
+      if (text.indexOf("next") >= 0) {
+        next = URL.resolve(url, anchor.attr("href"));
+      } else if (text.indexOf("prev") >= 0) {
+        previous = URL.resolve(url, anchor.attr("href"));
+      }
+    });
+
+    return {
+      id,
+      url,
+      previous,
+      next,
+      title,
+      contents,
+    };
   }
 
   async list(id) {
@@ -131,13 +170,16 @@ class _Chapters implements Chapters {
       const title = chapter.text();
       const href = chapter.attr("value");
 
-      const id = href.match(/\/([^/]+?)(\.[a-z]+)?\/?$/i)[1];
+      const chapterUrl = URL.resolve(url, href);
+      const id = URL.parse(chapterUrl).path.match(/\/(.*?)(?:\.[a-z]+)$/)[1];
 
       chapters.push({
         id,
+        url: chapterUrl,
+        previous: null,
+        next: null,
         title,
         contents: null,
-        url: URL.resolve(url, href),
       });
     }
 

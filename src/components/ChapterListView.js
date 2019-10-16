@@ -9,12 +9,15 @@ import {
   View,
   Text,
   FlatList,
+  TouchableOpacity,
 } from "react-native";
 import {
   ListItem,
 } from "react-native-elements";
+import { NavigationContext } from "react-navigation";
 
 import SourceContext from "~/sources/SourceContext";
+import URL from "~/utils/URL";
 
 import type { NovelKey, Chapter } from "~/sources/API";
 
@@ -75,11 +78,17 @@ function ChapterListView({ chapters }: {
 }
 
 function ChapterView({ item }) {
+  const navigation = useContext(NavigationContext);
+
+  const navigate = () => navigation.navigate("Chapter", { url: item.url });
+
   return (
-    <ListItem
-      title={item.title}
-      chevron={true}
-      bottomDivider
-    />
+    <TouchableOpacity onPress={navigate}>
+      <ListItem
+        title={item.title}
+        chevron={true}
+        bottomDivider
+      />
+    </TouchableOpacity>
   );
 }

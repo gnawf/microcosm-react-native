@@ -4,6 +4,8 @@ export type NovelKey = string;
 
 export type ChapterKey = string;
 
+export type URL = string;
+
 export type Novel = {
   +id: NovelKey,
   +url: string,
@@ -14,9 +16,11 @@ export type Novel = {
 
 export type Chapter = {
   +id: ChapterKey,
+  +url: URL,
+  +previous: ?URL,
+  +next: ?URL,
   +title: string,
   +contents: ?string,
-  +url: string,
 }
 
 export interface Source {
@@ -36,7 +40,7 @@ export interface Novels {
 }
 
 export interface Chapters {
-  get(id: ChapterKey): Promise<?Chapter>;
+  get(url: string): Promise<?Chapter>;
   list(id: NovelKey, args?: {
     cursor: any,
   }): Promise<Array<Chapter>>;
