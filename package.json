@@ -7,7 +7,8 @@
     "web": "expo start --web",
     "eject": "expo eject",
     "test": "jest --watchAll",
-    "flow": "flow"
+    "flow": "flow",
+    "browserify": "node browserify.js"
   },
   "jest": {
     "preset": "jest-expo"
@@ -16,6 +17,7 @@
     "@expo/samples": "~3.0.3",
     "@expo/vector-icons": "^10.0.3",
     "@react-navigation/web": "^1.0.0-alpha.9",
+    "cheerio": "^1.0.0-rc.3",
     "cheerio-without-node-native": "^0.20.2",
     "expo": "^35.0.0",
     "expo-asset": "^7.0.0",
@@ -38,7 +40,9 @@
     "babel-plugin-root-import": "^6.4.1",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "babel-preset-expo": "^7.0.0",
-    "jest-expo": "^35.0.0"
+    "browserify": "^16.5.0",
+    "jest-expo": "^35.0.0",
+    "uglify-es": "^3.3.9"
   },
   "private": true
 }

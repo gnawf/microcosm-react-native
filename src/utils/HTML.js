@@ -1,4 +1,4 @@
-import cheerio from "cheerio-without-node-native";
+import cheerio from "~/browserify/cheerio";
 
 cheerio.prototype.first = function first() {
   return cheerio(this[0]);
