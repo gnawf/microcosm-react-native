@@ -1,6 +1,54 @@
-node_modules/**/*
+# OSX
+.DS_Store
+
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+xcshareddata
+
+# Android/IntelliJ
+build/
+.idea
+.gradle
+local.properties
+*.iml
+
+# node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# BUCK
+buck-out/
+\.buckd/
+*.keystore
+!debug.keystore
+
+# Bundle artifact
+*.jsbundle
+
+# CocoaPods
+/ios/Pods/
+
+# VSCode
+.vscode
+
+# Expo
 .expo/*
-npm-debug.*
 *.jks
 *.p8
 *.p12
@@ -9,7 +57,3 @@ npm-debug.*
 *.orig.*
 web-build/
 web-report/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-.vscode/
