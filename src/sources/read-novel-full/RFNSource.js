@@ -74,10 +74,10 @@ class _Novels implements Novels {
     const rows = $(".list-novel .row");
 
     for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const anchor = $(row).find(".novel-title a");
+      const row = $(rows[i]);
+      const anchor = row.find(".novel-title a");
       const title = anchor.text().trim();
-      const image = $(row).find("img.cover").attr("src");
+      const image = row.find("img.cover").attr("src");
 
       if (!anchor.length) {
         continue;
@@ -94,7 +94,7 @@ class _Novels implements Novels {
 
       novels.push({
         id,
-        url: href,
+        url: URL.resolve(url, href),
         title,
         description: null,
         image: image.replace(/t-\d+x\d+/i, "t-300x439"),
@@ -111,6 +111,50 @@ class _Chapters implements Chapters {
   }
 
   async list(id) {
-    return [];
+    const chapters: Array<Chapter> = [];
+
+    const _id = await this.getNovelId(id);
+
+    const url = RFN_URL.resolve(`ajax/chapter-option?novelId=${_id}&currentChapterId=1`);
+
+    const result = await fetch(url);
+
+    const body = await result.text();
+
+    const $ = HTML.load(body);
+
+    const rows = $("select option");
+
+    for (let i = 0; i < rows.length; i++) {
+      const chapter = $(rows[i]);
+
+      const title = chapter.text();
+      const href = chapter.attr("value");
+
+      const id = href.match(/\/([^/]+?)(\.[a-z]+)?\/?$/i)[1];
+
+      chapters.push({
+        id,
+        title,
+        contents: null,
+        url: URL.resolve(url, href),
+      });
+    }
+
+    return chapters;
+  }
+
+  async getNovelId(slug): Promise<number> {
+    const url = RFN_URL.resolve(`/${slug}.html`);
+
+    const result = await fetch(url);
+
+    const body = await result.text();
+
+    const $ = HTML.load(body);
+
+    const id = $("[data-novel-id]").attr("data-novel-id");
+
+    return parseInt(id);
   }
 }

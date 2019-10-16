@@ -21,5 +21,6 @@ function parse(url: string): URL {
 }
 
 export default {
+  resolve: impl.resolve,
   parse,
 };

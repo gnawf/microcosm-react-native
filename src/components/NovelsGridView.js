@@ -11,6 +11,8 @@ import { NavigationContext } from "react-navigation";
 import { FlatGrid } from "react-native-super-grid";
 import { Image } from "react-native-elements";
 
+import URL from "~/utils/URL";
+
 import type { Novel } from "~/sources/API";
 
 type Fetch = () => void;
@@ -43,7 +45,10 @@ function NovelView({ item }: {
     return <Text style={styles.loading}>Loading…</Text>;
   }
 
-  const navigate = () => navigation.navigate("Novel", { novel: item });
+  const navigate = () => {
+    const host = URL.parse(item.url).host;
+    navigation.navigate("Novel", { id: item.id, host });
+  };
 
   return (
     <View key={item.id} style={styles.novel}>
