@@ -4,6 +4,8 @@ import React, {
   useContext,
   useState,
   useMemo,
+  useEffect,
+  useReducer,
 } from "react";
 import {
   View,
@@ -12,6 +14,8 @@ import {
   StyleSheet,
 } from "react-native";
 import {
+  Button,
+  Icon,
   Image,
   ListItem,
   Divider,
@@ -20,6 +24,7 @@ import { NavigationContext } from "react-navigation";
 
 import ChapterListView from "~/components/ChapterListView";
 import SourceContext from "~/sources/SourceContext";
+import RealmContext from "~/utils/RealmContext";
 import URL from "~/utils/URL";
 
 import type { Novel } from "~/sources/API";
@@ -122,6 +127,42 @@ function Page({ novel }: {
   );
 }
 
+function LibraryButton() {
+  const navigation = useContext(NavigationContext);
+  const realm = useContext(RealmContext);
+  const [ignored, forceUpdate] = useReducer((x) => !x, false);
+
+  const novel: Novel = navigation.getParam("novel");
+  const library = useMemo(() => {
+    return realm.objects("Library").filtered(`id = "${novel ? novel.id : ""}"`);
+  }, [novel]);
+
+  useEffect(() => {
+    const listener = () => forceUpdate();
+    library.addListener(listener);
+    return () => library.removeListener(listener);
+  }, [library]);
+
+  if (novel == null) {
+    return null;
+  }
+
+  const toggle = () => realm.write(() => {
+    if (library.length) {
+      realm.delete(library);
+    } else {
+      realm.create("Library", { id: novel.id, novel }, "modified");
+    }
+  });
+
+  return (
+    <Icon
+      name={library.length ? "remove" : "add"}
+      onPress={toggle}
+    />
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
@@ -152,5 +193,6 @@ NovelPage.navigationOptions = ({ navigation }) => {
 
   return {
     title,
+    headerRight: <LibraryButton />,
   };
 };

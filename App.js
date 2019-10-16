@@ -6,6 +6,7 @@ import { Platform, StatusBar, StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import AppNavigator from "./src/navigation/AppNavigator";
+import Realm from "./src/components/Realm";
 import bootstrap from "./bootstrap";
 
 export default function App(props) {
@@ -24,7 +25,9 @@ export default function App(props) {
   return (
     <View style={styles.container}>
       {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-      <AppNavigator />
+      <Realm>
+        <AppNavigator />
+      </Realm>
     </View>
   );
 }

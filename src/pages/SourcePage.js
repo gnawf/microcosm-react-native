@@ -12,10 +12,11 @@ import {
 import { NavigationContext } from "react-navigation";
 
 import NovelsGridView from "~/components/NovelsGridView";
+import RealmContext from "~/utils/RealmContext";
 import RFNSource from "~/sources/read-novel-full/RFNSource";
 import SourceContext from "~/sources/SourceContext";
 
-import type { Source } from "~/sources/API";
+import type { Source, Novel } from "~/sources/API";
 
 export default function SourcePage(props: {
   props: Object,
@@ -32,6 +33,7 @@ export default function SourcePage(props: {
 function Page({ source }: {
   source: Source,
 }) {
+  const realm = useContext(RealmContext);
   const [novels, setNovels] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
@@ -43,12 +45,16 @@ function Page({ source }: {
     }
   };
 
+  const persist = (novels: Array<Novel>) => realm.write(() => {
+    for (const novel of novels) {
+      realm.create("Novel", novel, "modified");
+    }
+  });
+
   useEffect(() => {
     if (!isLoading) {
       return;
     }
-
-    console.log("load ", cursor);
 
     (async () => {
       try {
@@ -56,6 +62,7 @@ function Page({ source }: {
         setHasMore(items.length > 0);
         setNovels([...novels, ...items]);
         setCursor(cursor + 1);
+        persist(items);
       } finally {
         setLoading(false);
       }
