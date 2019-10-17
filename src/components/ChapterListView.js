@@ -22,20 +22,22 @@ import URL from "~/utils/URL";
 
 import type { Chapter, NovelKey } from "~/sources/API";
 
-export default function ({ id, host }: {
+export default function ({ id, host, ListHeaderComponent }: {
   id: NovelKey,
   host: string,
+  ListHeaderComponent?: typeof React.Component | Function,
 }) {
   return (
     <FetchChapters
       Component={ChapterListView}
+      ListHeaderComponent={ListHeaderComponent}
       id={id}
       host={host}
     />
   );
 }
 
-function FetchChapters({ Component, id, host }: {
+function FetchChapters({ Component, id, host, ...props }: {
   Component: typeof React.Component | Function,
   id: NovelKey,
   host: string,
@@ -49,33 +51,37 @@ function FetchChapters({ Component, id, host }: {
       return;
     }
 
-    (async () => {
-      const source = Sources.by.host[host];
-      const chapters = await source.chapters.list(id, {});
-      setChapters(chapters);
-      setLoading(false);
-    })();
+    const source = Sources.by.host[host];
+    source.chapters.list(id, {}).then(setChapters).finally(() => setLoading(false));
   }, [isLoading]);
 
-  if (isLoading) {
-    return <Text style={styles.loading}>Loading…</Text>;
-  }
-
   return (
-    <Component chapters={chapters} />
+    <Component {...props} chapters={chapters} isLoading={isLoading} />
   );
 }
 
-function ChapterListView({ chapters }: {
+function ChapterListView({ chapters, isLoading, ListHeaderComponent }: {
   chapters: Array<Chapter>,
+  isLoading: boolean,
+  ListHeaderComponent: typeof React.Component | Function,
 }) {
   return (
     <FlatList
-      data={chapters}
-      renderItem={(props) => <ChapterView {...props} />}
-      keyExtractor={(chapter) => chapter.id}
+      data={isLoading ? [] : chapters}
+      renderItem={render}
+      keyExtractor={keyExtractor}
+      ListHeaderComponent={ListHeaderComponent}
+      ListEmptyComponent={isLoading ? LoadingView : null}
     />
   );
+}
+
+function render(props) {
+  return <ChapterView {...props} />;
+}
+
+function keyExtractor(chapter: Chapter) {
+  return chapter.id;
 }
 
 function ChapterView({ item }) {
@@ -92,6 +98,10 @@ function ChapterView({ item }) {
       />
     </TouchableOpacity>
   );
+}
+
+function LoadingView() {
+  return <Text style={styles.loading}>Loading…</Text>;
 }
 
 const styles = StyleSheet.create({

@@ -83,20 +83,30 @@ function Page({ novel }: {
   const host = useMemo(() => URL.parse(novel.url).host, [novel]);
 
   return (
-    <ScrollView>
-      <View>
-        <Image
-          style={styles.coverBackground}
-          source={{ uri: novel.image }}
-          blurRadius={2}
-        />
+    <ChapterListView
+      id={novel.id}
+      host={host}
+      ListHeaderComponent={<Header novel={novel} />}
+    />
+  );
+}
 
-        <View style={styles.container}>
-          <Image
-            style={styles.cover}
-            source={{ uri: novel.image }}
-          />
-        </View>
+function Header({ novel }: {
+  novel: Novel,
+}) {
+  return (
+    <View>
+      <Image
+        style={styles.coverBackground}
+        source={{ uri: novel.image }}
+        blurRadius={2}
+      />
+
+      <View style={styles.container}>
+        <Image
+          style={styles.cover}
+          source={{ uri: novel.image }}
+        />
       </View>
 
       <Divider />
@@ -118,12 +128,7 @@ function Page({ novel }: {
         titleStyle={styles.title}
         bottomDivider
       />
-
-      <ChapterListView
-        id={novel.id}
-        host={host}
-      />
-    </ScrollView>
+    </View>
   );
 }
 
