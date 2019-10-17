@@ -5,17 +5,17 @@ import React, {
   useState,
 } from "react";
 
-import RFNSource from "~/sources/read-novel-full/RFNSource";
+import Realm from "realm";
+import RNFSource from "~/sources/read-novel-full/RNFSource";
 import RealmSource from "~/sources/realm/RealmSource";
 import RealmContext from "~/utils/RealmContext";
 import SourceContext from "~/utils/SourceContext";
 
-import type Realm from "realm";
 import type { Source } from "~/sources/API";
 import type { Mode } from "~/sources/realm/RealmSource";
 
 const sources = [
-  new RFNSource(),
+  new RNFSource(),
 ];
 
 export default function Sources({ children }: {

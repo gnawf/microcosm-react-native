@@ -6,9 +6,9 @@ import HTML from "~/utils/HTML";
 
 import type { Chapter, Novel } from "~/sources/API";
 
-const RFN_URL = URL.parse("https://readnovelfull.com");
+const RNF_URL = URL.parse("https://readnovelfull.com");
 
-export default class RFNSource implements Source {
+export default class RNFSource implements Source {
   id: string;
   name: string;
   hosts: Array<string>;
@@ -16,9 +16,9 @@ export default class RFNSource implements Source {
   chapters: Chapters;
 
   constructor() {
-    this.id = "read-full-novel";
-    this.name = "Read Full Novel";
-    this.hosts = [RFN_URL.host];
+    this.id = "read-novel-full";
+    this.name = "Read Novel Full";
+    this.hosts = [RNF_URL.host];
     this.novels = new _Novels();
     this.chapters = new _Chapters();
   }
@@ -26,7 +26,7 @@ export default class RFNSource implements Source {
 
 class _Novels implements Novels {
   async get(id) {
-    const url = RFN_URL.resolve(`/${id}.html`);
+    const url = RNF_URL.resolve(`/${id}.html`);
 
     const result = await fetch(url);
 
@@ -63,7 +63,7 @@ class _Novels implements Novels {
   }) {
     const novels: Array<Novel> = [];
 
-    const url = RFN_URL.resolve(`/search?keyword=${encodeURIComponent(query)}&page=${page}`);
+    const url = RNF_URL.resolve(`/search?keyword=${encodeURIComponent(query)}&page=${page}`);
 
     const result = await fetch(url);
 
@@ -154,7 +154,7 @@ class _Chapters implements Chapters {
 
     const _id = await this.getNovelId(id);
 
-    const url = RFN_URL.resolve(`ajax/chapter-option?novelId=${_id}&currentChapterId=1`);
+    const url = RNF_URL.resolve(`ajax/chapter-option?novelId=${_id}&currentChapterId=1`);
 
     const result = await fetch(url);
 
@@ -187,7 +187,7 @@ class _Chapters implements Chapters {
   }
 
   async getNovelId(slug): Promise<number> {
-    const url = RFN_URL.resolve(`/${slug}.html`);
+    const url = RNF_URL.resolve(`/${slug}.html`);
 
     const result = await fetch(url);
 
