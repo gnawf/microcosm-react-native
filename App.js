@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import AppNavigator from "./src/navigation/AppNavigator";
 import Realm from "./src/components/Realm";
+import Sources from "./src/components/Sources";
 import bootstrap from "./bootstrap";
 
 export default function App(props) {
@@ -26,7 +27,9 @@ export default function App(props) {
     <View style={styles.container}>
       {Platform.OS === "ios" && <StatusBar barStyle="default" />}
       <Realm>
-        <AppNavigator />
+        <Sources>
+          <AppNavigator />
+        </Sources>
       </Realm>
     </View>
   );

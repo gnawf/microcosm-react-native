@@ -23,7 +23,7 @@ import {
 import { NavigationContext } from "react-navigation";
 
 import ChapterListView from "~/components/ChapterListView";
-import SourceContext from "~/sources/SourceContext";
+import SourceContext from "~/utils/SourceContext";
 import RealmContext from "~/utils/RealmContext";
 import URL from "~/utils/URL";
 
@@ -51,7 +51,7 @@ function FetchNovel({ Component, id, host, onLoad }: {
 }) {
   const [novel, setNovel] = useState(null);
   const [isLoading, setLoading] = useState(true);
-  const { byHost } = useContext(SourceContext);
+  const Sources = useContext(SourceContext);
 
   React.useEffect(() => {
     if (!isLoading) {
@@ -60,7 +60,7 @@ function FetchNovel({ Component, id, host, onLoad }: {
 
     (async () => {
       try {
-        const source = byHost[host];
+        const source = Sources.by.host[host];
         const novel = await source.novels.get(id);
         setNovel(novel);
         onLoad(novel);
@@ -71,7 +71,7 @@ function FetchNovel({ Component, id, host, onLoad }: {
   }, [isLoading]);
 
   if (isLoading) {
-    return <Text>Loading…</Text>;
+    return <Text style={styles.loading}>Loading…</Text>;
   }
 
   return <Component novel={novel} />;
@@ -134,7 +134,7 @@ function LibraryButton() {
 
   const novel: Novel = navigation.getParam("novel");
   const library = useMemo(() => {
-    return realm.objects("Library").filtered(`id = "${novel ? novel.id : ""}"`);
+    return realm.objects("Library").filtered("id = $0", novel ? novel.id : null);
   }, [novel]);
 
   useEffect(() => {
@@ -185,6 +185,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     flex: 1,
     height: 240,
+  },
+  loading: {
+    margin: 16,
   },
 });
 

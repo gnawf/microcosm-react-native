@@ -24,24 +24,24 @@ export type Chapter = {
 }
 
 export interface Source {
-  id: string;
-  name: string;
-  hosts: Array<string>;
-  novels: Novels;
-  chapters: Chapters;
+  +id: string;
+  +name: string;
+  +hosts: Array<string>;
+  +novels: Novels;
+  +chapters: Chapters;
 }
 
 export interface Novels {
   get(id: NovelKey): Promise<?Novel>;
   list(args: {
-    cursor: any,
+    cursor?: any,
   }): Promise<Array<Novel>>;
   search(query: string): Promise<Array<Novel>>;
 }
 
 export interface Chapters {
   get(url: string): Promise<?Chapter>;
-  list(id: NovelKey, args?: {
-    cursor: any,
+  list(id: NovelKey, args: {
+    cursor?: any,
   }): Promise<Array<Chapter>>;
 }

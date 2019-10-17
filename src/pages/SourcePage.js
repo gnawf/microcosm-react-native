@@ -14,7 +14,7 @@ import { NavigationContext } from "react-navigation";
 import NovelsGridView from "~/components/NovelsGridView";
 import RealmContext from "~/utils/RealmContext";
 import RFNSource from "~/sources/read-novel-full/RFNSource";
-import SourceContext from "~/sources/SourceContext";
+import SourceContext from "~/utils/SourceContext";
 
 import type { Source, Novel } from "~/sources/API";
 
@@ -22,10 +22,10 @@ export default function SourcePage(props: {
   props: Object,
 }) {
   const navigation = useContext(NavigationContext);
-  const { byId } = useContext(SourceContext);
+  const Sources = useContext(SourceContext);
 
   const id = navigation.getParam("id");
-  const source = byId[id];
+  const source = Sources.by.id[id];
 
   return <Page {...props} source={source} />;
 }
@@ -45,12 +45,6 @@ function Page({ source }: {
     }
   };
 
-  const persist = (novels: Array<Novel>) => realm.write(() => {
-    for (const novel of novels) {
-      realm.create("Novel", novel, "modified");
-    }
-  });
-
   useEffect(() => {
     if (!isLoading) {
       return;
@@ -62,7 +56,6 @@ function Page({ source }: {
         setHasMore(items.length > 0);
         setNovels([...novels, ...items]);
         setCursor(cursor + 1);
-        persist(items);
       } finally {
         setLoading(false);
       }

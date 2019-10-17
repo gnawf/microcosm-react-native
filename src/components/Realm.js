@@ -47,6 +47,20 @@ const NovelSchema = {
   },
 };
 
+
+const ChapterSchema = {
+  name: "Chapter",
+  primaryKey: "id",
+  properties: {
+    id: "string",
+    url: "string",
+    previous: "string?",
+    next: "string?",
+    title: "string",
+    contents: "string?",
+  },
+};
+
 const LibrarySchema = {
   name: "Library",
   primaryKey: "id",
@@ -59,6 +73,7 @@ const LibrarySchema = {
 const config = {
   schema: [
     NovelSchema,
+    ChapterSchema,
     LibrarySchema,
   ],
   deleteRealmIfMigrationNeeded: true,

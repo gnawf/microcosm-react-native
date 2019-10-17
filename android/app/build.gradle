@@ -46,15 +46,24 @@ android {
     javaMaxHeapSize System.getenv("DISABLE_DEX_MAX_HEAP") ? null : "8g"
   }
 
+
+  def keyStorePropertiesFile = new File("/Volumes/Signatures/microcosm.properties")
+  def keyStoreProperties = new Properties()
+  if (keyStorePropertiesFile.exists()) {
+    def keyStoreInStream = new FileInputStream(keyStorePropertiesFile)
+    keyStoreProperties.load(keyStoreInStream)
+    keyStoreInStream.close()
+  }
+
   signingConfigs {
     debug {
       storeFile file('../debug.keystore')
     }
     release {
-      storeFile file(System.getenv("ANDROID_KEYSTORE_PATH") ?: "release-key.jks")
-      storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
-      keyAlias System.getenv("ANDROID_KEY_ALIAS")
-      keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+      keyAlias keyStoreProperties["keyAlias"]
+      keyPassword keyStoreProperties["keyPassword"]
+      storeFile file(keyStoreProperties["storeFile"])
+      storePassword keyStoreProperties["storePassword"]
     }
   }
   buildTypes {
@@ -63,9 +72,7 @@ android {
       ext.enableCrashlytics = false
     }
     release {
-      minifyEnabled true
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-      consumerProguardFiles 'proguard-rules.pro'
+      debuggable false
       signingConfig signingConfigs.release
     }
   }

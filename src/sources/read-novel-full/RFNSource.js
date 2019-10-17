@@ -47,7 +47,7 @@ class _Novels implements Novels {
     };
   }
 
-  async list({ cursor }) {
+  async list({ cursor = 1 }) {
     return this.query({
       page: (cursor: number),
     });

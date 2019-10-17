@@ -10,13 +10,14 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
+  StyleSheet,
 } from "react-native";
 import {
   ListItem,
 } from "react-native-elements";
 import { NavigationContext } from "react-navigation";
 
-import SourceContext from "~/sources/SourceContext";
+import SourceContext from "~/utils/SourceContext";
 import URL from "~/utils/URL";
 
 import type { NovelKey, Chapter } from "~/sources/API";
@@ -41,7 +42,7 @@ function FetchChapters({ Component, id, host }: {
 }) {
   const [chapters, setChapters] = React.useState(null);
   const [isLoading, setLoading] = React.useState(true);
-  const { byHost } = useContext(SourceContext);
+  const Sources = useContext(SourceContext);
 
   useEffect(() => {
     if (!isLoading) {
@@ -49,15 +50,15 @@ function FetchChapters({ Component, id, host }: {
     }
 
     (async () => {
-      const source = byHost[host];
-      const chapters = await source.chapters.list(id);
+      const source = Sources.by.host[host];
+      const chapters = await source.chapters.list(id, {});
       setChapters(chapters);
       setLoading(false);
     })();
   }, [isLoading]);
 
   if (isLoading) {
-    return <Text>Loading…</Text>;
+    return <Text style={styles.loading}>Loading…</Text>;
   }
 
   return (
@@ -92,3 +93,9 @@ function ChapterView({ item }) {
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  loading: {
+    margin: 16,
+  },
+});

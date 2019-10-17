@@ -20,16 +20,16 @@ import {
 import { NavigationContext } from "react-navigation";
 
 import NovelsGridView from "~/components/NovelsGridView";
-import SourceContext from "~/sources/SourceContext";
+import SourceContext from "~/utils/SourceContext";
 
 import type { Source } from "~/sources/API";
 
 export default function CatalogPage() {
-  const { sources } = useContext(SourceContext);
+  const Sources = useContext(SourceContext);
 
   return (
     <FlatList
-      data={sources}
+      data={Sources.all}
       renderItem={(props) => <SourceView {...props} />}
       keyExtractor={(source) => source.id}
     />

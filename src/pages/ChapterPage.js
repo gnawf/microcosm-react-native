@@ -20,7 +20,7 @@ import {
 import { NavigationContext } from "react-navigation";
 import HTML from "react-native-htmlview";
 
-import SourceContext from "~/sources/SourceContext";
+import SourceContext from "~/utils/SourceContext";
 import URL from "~/utils/URL";
 
 import type { ChapterKey, Chapter } from "~/sources/API";
@@ -46,24 +46,27 @@ function FetchChapter({ Component, url, onLoad }: {
   const host = useMemo(() => URL.parse(url).host, [url]);
   const [chapter, setChapter] = useState(null);
   const [isLoading, setLoading] = useState(true);
-  const { byHost } = useContext(SourceContext);
+  const Sources = useContext(SourceContext);
 
   useEffect(() => {
     if (!isLoading) {
       return;
     }
 
-    (async () => {
-      try {
-        const source = byHost[host];
-        const chapter = await source.chapters.get(url);
-        setChapter(chapter);
-        onLoad(chapter);
-      } catch (e) { console.log(e); } finally {
-        setLoading(false);
-      }
-    })();
+    Sources.cached.by.host[host].chapters.get(url)
+      .then((chapter) => {
+        if (chapter != null && chapter.contents != null) {
+          setChapter(chapter);
+          setLoading(false)
+        }
+      });
+
+    Sources.by.host[host].chapters.get(url)
+      .then(setChapter)
+      .finally(() => setLoading(false));
   }, [isLoading]);
+
+  useEffect(() => onLoad(chapter), [chapter]);
 
   if (isLoading) {
     return <Text style={styles.loading}>Loading…</Text>;
