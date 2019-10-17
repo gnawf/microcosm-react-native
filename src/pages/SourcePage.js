@@ -1,13 +1,13 @@
 // @flow
 
 import React, {
-  useState,
-  useEffect,
   useContext,
+  useEffect,
+  useState,
 } from "react";
 import {
-  View,
   Text,
+  View,
 } from "react-native";
 import { NavigationContext } from "react-navigation";
 
@@ -16,7 +16,7 @@ import RealmContext from "~/utils/RealmContext";
 import RFNSource from "~/sources/read-novel-full/RFNSource";
 import SourceContext from "~/utils/SourceContext";
 
-import type { Source, Novel } from "~/sources/API";
+import type { Novel, Source } from "~/sources/API";
 
 export default function SourcePage(props: {
   props: Object,

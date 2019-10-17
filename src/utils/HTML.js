@@ -9,6 +9,6 @@ cheerio.prototype.forEach = function(fn) {
     const child = cheerio(this[i]);
     fn(child);
   }
-}
+};
 
 export default cheerio;

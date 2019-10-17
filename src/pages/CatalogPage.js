@@ -1,21 +1,21 @@
 // @flow
 
 import React, {
-  useState,
-  useEffect,
   useContext,
+  useEffect,
+  useState,
 } from "react";
 import {
-  View,
-  Text,
   FlatList,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
 import {
+  Button,
   Card,
   ListItem,
-  Button,
-} from "react-native-elements"
+} from "react-native-elements";
 import { NavigationContext } from "react-navigation";
 
 import NovelsGridView from "~/components/NovelsGridView";

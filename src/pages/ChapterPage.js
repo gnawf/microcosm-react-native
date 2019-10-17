@@ -2,16 +2,16 @@
 
 import React, {
   useContext,
-  useState,
   useEffect,
   useMemo,
+  useState,
 } from "react";
 import {
-  View,
-  Text,
   FlatList,
   ScrollView,
   StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import {
   Button,
@@ -23,7 +23,7 @@ import HTML from "react-native-htmlview";
 import SourceContext from "~/utils/SourceContext";
 import URL from "~/utils/URL";
 
-import type { ChapterKey, Chapter } from "~/sources/API";
+import type { Chapter, ChapterKey } from "~/sources/API";
 
 export default function ChapterPage() {
   const navigation = useContext(NavigationContext);
@@ -57,7 +57,7 @@ function FetchChapter({ Component, url, onLoad }: {
       .then((chapter) => {
         if (chapter != null && chapter.contents != null) {
           setChapter(chapter);
-          setLoading(false)
+          setLoading(false);
         }
       });
 

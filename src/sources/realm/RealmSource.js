@@ -27,7 +27,7 @@ class _Novels implements Novels {
   _realm: Realm;
   _mode: Mode;
 
-  get _novels() { return this._source.novels };
+  get _novels() { return this._source.novels; };
 
   constructor(source: Source, realm: Realm, mode: Mode) {
     this._source = source;
@@ -88,7 +88,7 @@ class _Chapters implements Chapters {
   _realm: Realm;
   _mode: Mode;
 
-  get _chapters() { return this._source.chapters };
+  get _chapters() { return this._source.chapters; };
 
   constructor(source: Source, realm: Realm, mode: Mode) {
     this._source = source;

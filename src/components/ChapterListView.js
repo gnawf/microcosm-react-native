@@ -2,15 +2,15 @@
 
 import React, {
   useContext,
-  useState,
   useEffect,
+  useState,
 } from "react";
 import {
-  View,
-  Text,
   FlatList,
-  TouchableOpacity,
   StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import {
   ListItem,
@@ -20,7 +20,7 @@ import { NavigationContext } from "react-navigation";
 import SourceContext from "~/utils/SourceContext";
 import URL from "~/utils/URL";
 
-import type { NovelKey, Chapter } from "~/sources/API";
+import type { Chapter, NovelKey } from "~/sources/API";
 
 export default function ({ id, host }: {
   id: NovelKey,

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
 
-import AppNavigator from "./src/navigation/AppNavigator";
-import Realm from "./src/components/Realm";
-import Sources from "./src/components/Sources";
+import AppNavigator from "~/navigation/AppNavigator";
+import Realm from "~/components/Realm";
+import Sources from "~/components/Sources";
 
 export default function App(props) {
   return (

@@ -2,8 +2,8 @@
 
 import React, {
   createContext,
-  useState,
   useEffect,
+  useState,
 } from "react";
 import Realm from "realm";
 
@@ -32,7 +32,7 @@ export default function ({ children }: {
     <RealmContext.Provider value={realm}>
       {children}
     </RealmContext.Provider>
-  )
+  );
 }
 
 const NovelSchema = {

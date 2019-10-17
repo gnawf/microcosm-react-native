@@ -2,8 +2,8 @@
 
 import React, {
   useContext,
-  useMemo,
   useEffect,
+  useMemo,
   useReducer,
 } from "react";
 import { FlatList } from "react-native";

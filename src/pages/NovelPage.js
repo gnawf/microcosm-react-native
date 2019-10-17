@@ -2,23 +2,23 @@
 
 import React, {
   useContext,
-  useState,
-  useMemo,
   useEffect,
+  useMemo,
   useReducer,
+  useState,
 } from "react";
 import {
-  View,
-  Text,
   ScrollView,
   StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import {
   Button,
+  Divider,
   Icon,
   Image,
   ListItem,
-  Divider,
 } from "react-native-elements";
 import { NavigationContext } from "react-navigation";
 

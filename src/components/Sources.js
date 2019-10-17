@@ -16,7 +16,7 @@ import type { Mode } from "~/sources/realm/RealmSource";
 
 const sources = [
   new RFNSource(),
-]
+];
 
 export default function Sources({ children }: {
   children: any,

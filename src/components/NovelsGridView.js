@@ -2,10 +2,10 @@
 
 import React, { useContext } from "react";
 import {
-  View,
-  Text,
   StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
 import { NavigationContext } from "react-navigation";
 import { FlatGrid } from "react-native-super-grid";
