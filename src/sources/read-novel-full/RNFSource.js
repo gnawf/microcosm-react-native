@@ -35,7 +35,7 @@ class _Novels implements Novels {
     const $ = HTML.load(body);
 
     const title = $(".title").first().text().trim();
-    const description = $(".desc-text").first().text().trim();
+    const description = html($(".desc-text").first());
     const image = $(".book img").first().attr("src");
 
     return {
@@ -119,14 +119,7 @@ class _Chapters implements Chapters {
 
     const title = $(".chr-title").text().match(/chapter\s+\d+/i)[0];
 
-    const content = $("#chr-content").first();
-    content.find("br, script").remove();
-    content.find("p").forEach((paragraph) => {
-      if (paragraph.text().trim().length === 0) {
-        paragraph.remove();
-      }
-    });
-    const contents = content.html();
+    const contents = html($("#chr-content").first());
 
     let previous, next;
 
@@ -199,4 +192,15 @@ class _Chapters implements Chapters {
 
     return parseInt(id);
   }
+}
+
+function html(input) {
+  input.find("br, script").remove();
+  input.find("p").forEach((paragraph) => {
+    if (paragraph.text().trim().length === 0) {
+      paragraph.remove();
+    }
+  });
+
+  return input.html();
 }

@@ -21,6 +21,7 @@ import {
   ListItem,
 } from "react-native-elements";
 import { NavigationContext } from "react-navigation";
+import HTML from "react-native-htmlview";
 
 import ChapterListView from "~/components/ChapterListView";
 import SourceContext from "~/utils/SourceContext";
@@ -53,25 +54,23 @@ function FetchNovel({ Component, id, host, onLoad }: {
   const [isLoading, setLoading] = useState(true);
   const Sources = useContext(SourceContext);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLoading) {
       return;
     }
 
-    (async () => {
-      try {
-        const source = Sources.by.host[host];
-        const novel = await source.novels.get(id);
-        setNovel(novel);
-        onLoad(novel);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    const source = Sources.by.host[host];
+    source.novels.get(id).then(setNovel).finally(() => setLoading(false));
   }, [isLoading]);
+
+  useEffect(() => onLoad(novel), [novel]);
 
   if (isLoading) {
     return <Text style={styles.loading}>Loading…</Text>;
+  }
+
+  if (novel == null) {
+    return <Text style={styles.error}>Unable to load novel</Text>;
   }
 
   return <Component novel={novel} />;
@@ -117,9 +116,10 @@ function Header({ novel }: {
         bottomDivider
       />
 
-      <Text style={styles.description}>
-        {novel.description}
-      </Text>
+      <HTML
+        style={styles.description}
+        value={novel.description}
+      />
 
       <Divider />
 
@@ -179,8 +179,6 @@ const styles = StyleSheet.create({
   },
   description: {
     padding: 16,
-    fontSize: 16,
-    textAlign: "justify",
   },
   cover: {
     width: 131,
@@ -193,6 +191,12 @@ const styles = StyleSheet.create({
   },
   loading: {
     margin: 16,
+    alignSelf: "center",
+  },
+  error: {
+    margin: 16,
+    color: "red",
+    alignSelf: "center",
   },
 });
 
