@@ -7,30 +7,28 @@ import type { Chapter, Chapters, Novel, Novels, Source } from "~/sources/API";
 export type Mode = "load" | "save";
 
 export default class RealmSource implements Source {
-  _source: Source;
+  id: string;
+  name: string;
+  hosts: Array<string>;
   novels: Novels;
   chapters: Chapters;
 
-  get id() { return this._source.id; }
-  get name() { return this._source.name; }
-  get hosts() { return this._source.hosts; }
-
   constructor(source: Source, realm: Realm, mode: Mode) {
-    this._source = source;
+    this.id = source.id;
+    this.name = source.name;
+    this.hosts = source.hosts;
     this.novels = new _Novels(source, realm, mode);
     this.chapters = new _Chapters(source, realm, mode);
   }
 }
 
 class _Novels implements Novels {
-  _source: Source;
+  _novels: Novels;
   _realm: Realm;
   _mode: Mode;
 
-  get _novels() { return this._source.novels; };
-
   constructor(source: Source, realm: Realm, mode: Mode) {
-    this._source = source;
+    this._novels = source.novels;
     this._realm = realm;
     this._mode = mode;
   }
@@ -84,14 +82,12 @@ class _Novels implements Novels {
 }
 
 class _Chapters implements Chapters {
-  _source: Source;
+  _chapters: Chapters;
   _realm: Realm;
   _mode: Mode;
 
-  get _chapters() { return this._source.chapters; };
-
   constructor(source: Source, realm: Realm, mode: Mode) {
-    this._source = source;
+    this._chapters = source.chapters;
     this._realm = realm;
     this._mode = mode;
   }
