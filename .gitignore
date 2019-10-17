@@ -18,7 +18,6 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
-xcshareddata
 
 # Android/IntelliJ
 build/
@@ -38,6 +37,17 @@ buck-out/
 *.keystore
 !debug.keystore
 
+# fastlane
+#
+# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
+# screenshots whenever they are needed.
+# For more information about the recommended setup visit:
+# https://docs.fastlane.tools/best-practices/source-control/
+
+*/fastlane/report.xml
+*/fastlane/Preview.html
+*/fastlane/screenshots
+
 # Bundle artifact
 *.jsbundle
 
@@ -46,14 +56,3 @@ buck-out/
 
 # VSCode
 .vscode
-
-# Expo
-.expo/*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-*.orig.*
-web-build/
-web-report/

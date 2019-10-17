@@ -15,7 +15,6 @@ import {
   Card,
   ListItem,
   Button,
-  Icon,
 } from "react-native-elements"
 import { NavigationContext } from "react-navigation";
 

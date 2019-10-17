@@ -1,15 +1,28 @@
+// @flow
+
 import React from "react";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  Icon,
+} from "react-native-elements";
 
 import Colors from "~/constants/Colors";
 
-export default function TabBarIcon(props) {
+const style = {
+  marginBottom: -3,
+};
+
+export default function TabBarIcon({ name, type, focused }: {
+  name: string,
+  type: string,
+  focused: boolean,
+}) {
   return (
-    <Ionicons
-      name={props.name}
+    <Icon
+      name={name}
+      type={type}
       size={26}
-      style={{ marginBottom: -3 }}
-      color={props.focused ? Colors.tabIconSelected : Colors.tabIconDefault}
+      style={style}
+      color={focused ? Colors.tabIconSelected : Colors.tabIconDefault}
     />
   );
 }

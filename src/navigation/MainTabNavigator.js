@@ -20,7 +20,11 @@ const CatalogStack = createStackNavigator(
 
 CatalogStack.navigationOptions = {
   tabBarLabel: "Catalog",
-  tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-information-circle" />,
+  tabBarIcon: ({ focused }) => <TabBarIcon
+    focused={focused}
+    name="md-information-circle-outline"
+    type="ionicon"
+  />,
 };
 
 const LibraryStack = createStackNavigator(
@@ -33,7 +37,11 @@ const LibraryStack = createStackNavigator(
 
 LibraryStack.navigationOptions = {
   tabBarLabel: "Library",
-  tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
+  tabBarIcon: ({ focused }) => <TabBarIcon
+    focused={focused}
+    name="md-book"
+    type="ionicon"
+  />,
 };
 
 const DownloadsStack = createStackNavigator(
@@ -46,7 +54,11 @@ const DownloadsStack = createStackNavigator(
 
 DownloadsStack.navigationOptions = {
   tabBarLabel: "Downloads",
-  tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-download" />,
+  tabBarIcon: ({ focused }) => <TabBarIcon
+    focused={focused}
+    name="md-download"
+    type="ionicon"
+  />,
 };
 
 const tabNavigator = createBottomTabNavigator({
