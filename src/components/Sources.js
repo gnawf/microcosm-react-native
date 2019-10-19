@@ -2,7 +2,7 @@
 
 import React, {
   useContext,
-  useState,
+  useMemo,
 } from "react";
 
 import Realm from "realm";
@@ -23,7 +23,7 @@ export default function Sources({ children }: {
 }) {
   const realm = useContext(RealmContext);
 
-  const [value] = useState(() => {
+  const value = useMemo(() => {
     return {
       ...build(realm, "save"),
       cached: {
@@ -31,7 +31,7 @@ export default function Sources({ children }: {
         cached: null,
       },
     };
-  });
+  }, [realm]);
 
   return (
     <SourceContext.Provider value={value}>

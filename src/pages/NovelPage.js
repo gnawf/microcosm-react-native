@@ -140,7 +140,7 @@ function LibraryButton() {
   const novel: Novel = navigation.getParam("novel");
   const library = useMemo(() => {
     return realm.objects("Library").filtered("id = $0", novel ? novel.id : null);
-  }, [novel]);
+  }, [realm, novel]);
 
   useEffect(() => {
     const listener = () => forceUpdate();

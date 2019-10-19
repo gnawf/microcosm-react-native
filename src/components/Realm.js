@@ -9,13 +9,16 @@ import Realm from "realm";
 
 import RealmContext from "~/utils/RealmContext";
 
-export default function ({ children }: {
-  children: any,
-}) {
+function useRealm() {
   const [realm, setRealm] = useState(null);
 
   useEffect(() => {
-    Realm.open(config).then(setRealm);
+    let realm: Realm;
+
+    (async () => {
+      realm = await Realm.open(config);
+      setRealm(realm);
+    })();
 
     return () => {
       if (realm != null) {
@@ -23,6 +26,14 @@ export default function ({ children }: {
       }
     };
   }, []);
+
+  return realm;
+}
+
+export default function ({ children }: {
+  children: any,
+}) {
+  const realm = useRealm();
 
   if (realm == null) {
     return null;

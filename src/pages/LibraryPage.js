@@ -15,7 +15,7 @@ export default function LibraryPage() {
   const realm = useContext(RealmContext);
   const [ignored, forceUpdate] = useReducer((x) => !x, false);
 
-  const library = useMemo(() => realm.objects("Library"), []);
+  const library = useMemo(() => realm.objects("Library"), [realm]);
 
   // Auto update view on Realm updates
   useEffect(() => {
