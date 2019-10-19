@@ -191,12 +191,10 @@ const styles = StyleSheet.create({
   },
   loading: {
     margin: 16,
-    alignSelf: "center",
   },
   error: {
     margin: 16,
     color: "red",
-    alignSelf: "center",
   },
 });
 
