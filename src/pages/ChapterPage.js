@@ -193,19 +193,19 @@ const styles = StyleSheet.create({
 
 const stylesheet = StyleSheet.create({
   p: {
-    fontSize: 14,
+    fontSize: 16,
     textAlign: "justify",
   },
   h1: {
     fontWeight: "bold",
-    fontSize: 20,
+    fontSize: 22,
   },
   h2: {
     fontWeight: "bold",
-    fontSize: 18,
+    fontSize: 20,
   },
   h3: {
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 18,
   },
 });
