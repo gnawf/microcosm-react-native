@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useRef,
 } from "react";
 import {
   FlatList,
@@ -26,9 +27,11 @@ import { useSources } from "~/navigation/Providers";
 
 import type { Chapter, ChapterKey } from "~/sources/API";
 
-export default function ChapterPage({ url }: {
+export default function ChapterPage({ url: originalUrl }: {
   url: string,
 }) {
+  const [url, setUrl] = useState(originalUrl);
+
   const { chapter, isLoading } = useChapter(url);
 
   useTitle(chapter);
@@ -43,7 +46,7 @@ export default function ChapterPage({ url }: {
 
   return (
     <ScrollView style={styles.scrollable}>
-      <NavButtons chapter={chapter} />
+      <NavButtons chapter={chapter} navigate={setUrl} />
 
       <HTML
         value={chapter.contents}
@@ -51,36 +54,61 @@ export default function ChapterPage({ url }: {
         stylesheet={stylesheet}
       />
 
-      <NavButtons chapter={chapter} />
+      <NavButtons chapter={chapter} navigate={setUrl} />
     </ScrollView>
   );
 }
 
-function useChapter(url) {
+function useChapterHolder(url: string) {
+  const urlRef = useRef<string>(url);
+
+  // Store the URL as a reference so all old hooks can access the latest
+  useEffect(() => { urlRef.current = url; }, [url]);
+
+  const [chapter, setChapter] = useState(null);
+
+  return [
+    chapter,
+    // Only update the chapter if the current hook's URL maches the latest URL
+    (value) => { if (url == urlRef.current) setChapter(value); },
+  ];
+}
+
+function useChapter(url: string) {
   const Sources = useSources();
   const host = useMemo(() => URL.parse(url).host, [url]);
-  const [chapter, setChapter] = useState(null);
+  const [chapter, setChapter] = useChapterHolder(url);
   const [isLoading, setLoading] = useState(false);
 
   // Trigger load when URL changes
-  useEffect(() => setLoading(true), [url]);
+  useEffect(() => {
+    setChapter(null);
+    setLoading(true);
+  }, [url]);
 
   useEffect(() => {
     if (!isLoading) {
       return;
     }
 
-    Sources.cached.by.host[host].chapters.get(url)
-      .then((chapter) => {
-        if (chapter != null && chapter.contents != null) {
-          setChapter(chapter);
-          setLoading(false);
-        }
-      });
+    const fetch = async () => {
+      const promises = [
+        Sources.cached.by.host[host].chapters.get(url),
+        Sources.by.host[host].chapters.get(url),
+      ];
 
-    Sources.by.host[host].chapters.get(url)
-      .then(setChapter)
-      .finally(() => setLoading(false));
+      for (const promise of promises) {
+        const chapter = await promise;
+        // Contents are null if the chapter is just a ref
+        if (chapter == null || chapter.contents == null) {
+          continue;
+        }
+        setChapter(chapter);
+        setLoading(false);
+      }
+    };
+
+    fetch();
   }, [isLoading]);
 
   return {
@@ -89,39 +117,36 @@ function useChapter(url) {
   };
 }
 
-function NavButtons({ chapter }: {
+function NavButtons({ chapter, navigate }: {
   chapter: Chapter,
+  navigate: (string) => void,
 }) {
-  const navigateNext = useNavigate(chapter.next);
-  const navigatePrev = useNavigate(chapter.previous);
+  const chapters = useMemo(() => {
+    const { previous, next } = chapter;
+
+    return {
+      previous: previous != null ? () => navigate(previous) : null,
+      next: next != null ? () => navigate(next) : null,
+    };
+  }, [chapter]);
 
   return (
     <View style={styles.navButtons}>
-      <NavButton
-        text="Previous"
-        disabled={chapter.previous == null}
-        navigate={navigatePrev}
-      />
-
-      <NavButton
-        text="Next"
-        disabled={chapter.next == null}
-        navigate={navigateNext}
-      />
+      <NavButton text="Previous" navigate={chapters.previous} />
+      <NavButton text="Next" navigate={chapters.next} />
     </View>
   );
 }
 
-function NavButton({ text, disabled, navigate }: {
+function NavButton({ text, navigate }: {
   text: string,
-  disabled: boolean,
   navigate: ?() => void,
 }) {
   return (
     <Button
       title={text}
       onPress={navigate}
-      disabled={disabled || navigate == null}
+      disabled={navigate == null}
       type="clear"
     />
   );
@@ -131,7 +156,7 @@ function useTitle(chapter: ?Chapter) {
   const { id } = usePage();
 
   useEffect(() => {
-    if (chapter != null) {
+    if (chapter != null && chapter.title != null) {
       const match = chapter.title.match(/chapter\s+\d+/i);
       const title = match ? match[0] : chapter.title;
       Navigation.mergeOptions(id, {
@@ -143,23 +168,6 @@ function useTitle(chapter: ?Chapter) {
       });
     }
   }, [chapter]);
-}
-
-function useNavigate(url: ?string) {
-  const { id } = usePage();
-
-  if (url == null) {
-    return null;
-  }
-
-  return () => Navigation.push(id, {
-    component: {
-      name: Pages.chapter,
-      passProps: {
-        url: url,
-      },
-    },
-  });
 }
 
 const styles = StyleSheet.create({
