@@ -122,11 +122,16 @@ class _Chapters implements Chapters {
 
     realm.write(() => {
       for (let chapter of chapters) {
-        // Keep old contents
+        // Fill in missing data from existing rows
         if (chapter.contents == null) {
-          const results = query.filtered("id = $0", chapter.id);
-          if (results[0] != null) {
-            chapter = { ...chapter, contents: results[0].contents };
+          const [result] = query.filtered("id = $0", chapter.id);
+          if (result != null) {
+            chapter = { ...chapter };
+            for (const key in chapter) {
+              if (chapter[key] == null) {
+                chapter[key] = result[key];
+              }
+            }
           }
         }
 
