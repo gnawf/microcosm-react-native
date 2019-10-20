@@ -23,7 +23,7 @@ import {
 import HTML from "react-native-htmlview";
 import { Navigation } from "react-native-navigation";
 
-import ChapterListView from "~/components/ChapterListView";
+import NovelChapters from "~/components/NovelChapters";
 import URL from "~/utils/URL";
 import { usePage } from "~/navigation/Pages";
 import { useRealm } from "~/navigation/Providers";
@@ -50,7 +50,7 @@ export default function NovelPage({ id, host }: {
   }
 
   return (
-    <ChapterListView
+    <NovelChapters
       id={novel.id}
       host={host}
       ListHeaderComponent={<Header novel={novel} />}
