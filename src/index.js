@@ -11,9 +11,10 @@ Navigation.events().registerAppLaunchedListener(async () => {
 
   pages();
 
-  const [catalog, library, downloads] = await Promise.all([
+  const [catalog, library, recents, downloads] = await Promise.all([
     Icon.getImageSource("explore", 20),
     Icon.getImageSource("library-books", 20),
+    Icon.getImageSource("history", 20),
     Icon.getImageSource("file-download", 20),
   ]);
 
@@ -24,6 +25,7 @@ Navigation.events().registerAppLaunchedListener(async () => {
         children: [
           stack({ component: Pages.catalog, icon: catalog }),
           stack({ component: Pages.library, icon: library }),
+          stack({ component: Pages.recents, icon: recents }),
           stack({ component: Pages.downloads, icon: downloads }),
         ],
       },

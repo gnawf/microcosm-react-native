@@ -14,7 +14,6 @@ const NovelSchema = {
   },
 };
 
-
 const ChapterSchema = {
   name: "Chapter",
   primaryKey: "id",
@@ -37,11 +36,20 @@ const LibrarySchema = {
   },
 };
 
+const ReadingLogSchema = {
+  name: "ReadingLog",
+  properties: {
+    date: "date",
+    chapter: "Chapter",
+  },
+};
+
 const config = {
   schema: [
     NovelSchema,
     ChapterSchema,
     LibrarySchema,
+    ReadingLogSchema,
   ],
   deleteRealmIfMigrationNeeded: true,
 };

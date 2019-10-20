@@ -23,7 +23,7 @@ import { Navigation } from "react-native-navigation";
 
 import URL from "~/utils/URL";
 import { Pages, usePage } from "~/navigation/Pages";
-import { useSources } from "~/navigation/Providers";
+import { useRealm, useSources } from "~/navigation/Providers";
 
 import type { Chapter, ChapterKey } from "~/sources/API";
 
@@ -35,6 +35,7 @@ export default function ChapterPage({ url: originalUrl }: {
   const { chapter, isLoading } = useChapter(url);
 
   useTitle(chapter);
+  useReadingLog(chapter);
 
   if (isLoading) {
     return <Text style={styles.loading}>Loading…</Text>;
@@ -167,6 +168,30 @@ function useTitle(chapter: ?Chapter) {
         },
       });
     }
+  }, [chapter]);
+}
+
+function useReadingLog(chapter: ?Chapter) {
+  const realm = useRealm();
+
+  useEffect(() => {
+    if (chapter == null) {
+      return;
+    }
+
+    // Mark as read after 10 seconds on the page
+    const id = setTimeout(() => {
+      realm.write(() => {
+        realm.create("ReadingLog", {
+          date: new Date(),
+          chapter,
+        }, "modified");
+      });
+    }, 10000);
+
+    return () => {
+      clearTimeout(id);
+    };
   }, [chapter]);
 }
 
