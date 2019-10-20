@@ -20,50 +20,26 @@ import {
   Image,
   ListItem,
 } from "react-native-elements";
-import { NavigationContext } from "react-navigation";
 import HTML from "react-native-htmlview";
+import { Navigation } from "react-native-navigation";
 
 import ChapterListView from "~/components/ChapterListView";
-import SourceContext from "~/utils/SourceContext";
-import RealmContext from "~/utils/RealmContext";
 import URL from "~/utils/URL";
+import { usePage } from "~/navigation/Pages";
+import { useRealm } from "~/navigation/Providers";
+import { useSources } from "~/navigation/Providers";
+import { useIcon } from "~/utils/Icons";
 
 import type { Novel } from "~/sources/API";
 
-export default function NovelPage() {
-  const navigation = useContext(NavigationContext);
-  const id: string = navigation.getParam("id");
-  const host: string = navigation.getParam("host");
-
-  const onLoad = (novel: ?Novel) => {
-    navigation.setParams({ novel });
-  };
-
-  return (
-    <FetchNovel Component={Page} id={id} host={host} onLoad={onLoad} />
-  );
-}
-
-function FetchNovel({ Component, id, host, onLoad }: {
-  Component: typeof React.Component | Function,
+export default function NovelPage({ id, host }: {
   id: string,
   host: string,
-  onLoad: (?Novel) => void,
 }) {
-  const [novel, setNovel] = useState(null);
-  const [isLoading, setLoading] = useState(true);
-  const Sources = useContext(SourceContext);
+  const { novel, isLoading } = useNovel(id, host);
 
-  useEffect(() => {
-    if (!isLoading) {
-      return;
-    }
-
-    const source = Sources.by.host[host];
-    source.novels.get(id).then(setNovel).finally(() => setLoading(false));
-  }, [isLoading]);
-
-  useEffect(() => onLoad(novel), [novel]);
+  useTitle(novel);
+  useLibraryButton(novel);
 
   if (isLoading) {
     return <Text style={styles.loading}>Loading…</Text>;
@@ -73,14 +49,6 @@ function FetchNovel({ Component, id, host, onLoad }: {
     return <Text style={styles.error}>Unable to load novel</Text>;
   }
 
-  return <Component novel={novel} />;
-}
-
-function Page({ novel }: {
-  novel: Novel,
-}) {
-  const host = useMemo(() => URL.parse(novel.url).host, [novel]);
-
   return (
     <ChapterListView
       id={novel.id}
@@ -88,6 +56,27 @@ function Page({ novel }: {
       ListHeaderComponent={<Header novel={novel} />}
     />
   );
+}
+
+function useNovel(id: string, host: string) {
+  const Sources = useSources();
+  const [novel, setNovel] = useState(null);
+  const [isLoading, setLoading] = useState(false);
+
+  useEffect(() => setLoading(true), [id, host]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      return;
+    }
+
+    Sources.by.host[host].novels.get(id).then(setNovel).finally(() => setLoading(false));
+  }, [isLoading]);
+
+  return {
+    novel,
+    isLoading,
+  };
 }
 
 function Header({ novel }: {
@@ -132,40 +121,74 @@ function Header({ novel }: {
   );
 }
 
-function LibraryButton() {
-  const navigation = useContext(NavigationContext);
-  const realm = useContext(RealmContext);
+function useTitle(novel: ?Novel) {
+  const { id } = usePage();
+
+  if (novel == null) {
+    return;
+  }
+
+  Navigation.mergeOptions(id, {
+    topBar: {
+      title: {
+        text: novel.title,
+      },
+    },
+  });
+}
+
+function useLibraryButton(novel: ?Novel) {
   const [ignored, forceUpdate] = useReducer((x) => !x, false);
 
-  const novel: Novel = navigation.getParam("novel");
+  const { id } = usePage();
+  const add = useIcon("add", 20);
+  const remove = useIcon("remove", 20);
+  const realm = useRealm();
+
+  // Query the library to see whether this novel exists
   const library = useMemo(() => {
     return realm.objects("Library").filtered("id = $0", novel ? novel.id : null);
   }, [realm, novel]);
 
+  // Auto update navigation button upon library changes
   useEffect(() => {
     const listener = () => forceUpdate();
     library.addListener(listener);
     return () => library.removeListener(listener);
   }, [library]);
 
-  if (novel == null) {
-    return null;
-  }
+  // Handle button click
+  useEffect(() => {
+    const subscription = Navigation.events().registerNavigationButtonPressedListener((event) => {
+      // Ensure button click should be handled by us
+      if (event.componentId !== id || event.buttonId !== "library" || novel == null) {
+        return;
+      }
 
-  const toggle = () => realm.write(() => {
-    if (library.length) {
-      realm.delete(library);
-    } else {
-      realm.create("Library", { id: novel.id, novel }, "modified");
-    }
+      realm.write(() => {
+        if (library.length) {
+          realm.delete(library);
+        } else {
+          realm.create("Library", { id: novel.id, novel }, "modified");
+        }
+      });
+    });
+
+    // Note: cannot return subscription.remove directly as it errors out
+    return () => subscription.remove();
+  }, [novel]);
+
+  // Set the top bar buttons
+  Navigation.mergeOptions(id, {
+    topBar: {
+      rightButtons: novel == null || add == null || remove == null ? [] : [
+        {
+          id: "library",
+          icon: library.length === 0 ? add : remove,
+        },
+      ],
+    },
   });
-
-  return (
-    <Icon
-      name={library.length ? "remove" : "add"}
-      onPress={toggle}
-    />
-  );
 }
 
 const styles = StyleSheet.create({
@@ -197,12 +220,3 @@ const styles = StyleSheet.create({
     color: "red",
   },
 });
-
-NovelPage.navigationOptions = ({ navigation }) => {
-  const { title }: Novel = navigation.getParam("novel") || {};
-
-  return {
-    title,
-    headerRight: <LibraryButton />,
-  };
-};

@@ -7,15 +7,19 @@ import React, {
   useReducer,
 } from "react";
 import { FlatList } from "react-native";
+import { Navigation } from "react-native-navigation";
 
-import RealmContext from "~/utils/RealmContext";
-import NovelsGridView from "../components/NovelsGridView";
+import NovelsGridView from "~/components/NovelsGridView";
+import { usePage } from "~/navigation/Pages";
+import { useRealm } from "~/navigation/Providers";
 
 export default function LibraryPage() {
-  const realm = useContext(RealmContext);
+  const realm = useRealm();
   const [ignored, forceUpdate] = useReducer((x) => !x, false);
 
   const library = useMemo(() => realm.objects("Library"), [realm]);
+
+  useTitle();
 
   // Auto update view on Realm updates
   useEffect(() => {
@@ -34,6 +38,14 @@ export default function LibraryPage() {
   );
 }
 
-LibraryPage.navigationOptions = {
-  title: "Library",
-};
+function useTitle() {
+  const { id } = usePage();
+
+  Navigation.mergeOptions(id, {
+    topBar: {
+      title: {
+        text: "Library",
+      },
+    },
+  });
+}

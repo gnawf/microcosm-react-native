@@ -1,17 +1,18 @@
 // @flow
 
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { NavigationContext } from "react-navigation";
 import { FlatGrid } from "react-native-super-grid";
 import { Image } from "react-native-elements";
+import { Navigation } from "react-native-navigation";
 
 import URL from "~/utils/URL";
+import { Pages, usePage } from "~/navigation/Pages";
 
 import type { Novel } from "~/sources/API";
 
@@ -37,18 +38,13 @@ export default function NovelsGridView({ novels, size = 100, fetch, hasMore }: {
 }
 
 function NovelView({ item }: {
-  item: Novel | null,
+  item: ?Novel,
 }) {
-  const navigation = useContext(NavigationContext);
-
   if (item == null) {
     return <Text style={styles.loading}>Loading…</Text>;
   }
 
-  const navigate = () => {
-    const host = URL.parse(item.url).host;
-    navigation.navigate("Novel", { id: item.id, host });
-  };
+  const navigate = useNavigate(item);
 
   return (
     <View key={item.id} style={styles.novel}>
@@ -63,6 +59,28 @@ function NovelView({ item }: {
       </TouchableOpacity>
     </View>
   );
+}
+
+function useNavigate(novel: ?Novel) {
+  const { id } = usePage();
+
+  if (novel == null) {
+    return null;
+  }
+
+  return () => {
+    const host = URL.parse(novel.url).host;
+
+    Navigation.push(id, {
+      component: {
+        name: Pages.novel,
+        passProps: {
+          id: novel.id,
+          host,
+        },
+      },
+    });
+  };
 }
 
 const styles = StyleSheet.create({

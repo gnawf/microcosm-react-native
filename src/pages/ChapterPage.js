@@ -17,36 +17,53 @@ import {
   Button,
   ListItem,
 } from "react-native-elements";
-import { NavigationContext } from "react-navigation";
 import HTML from "react-native-htmlview";
+import { Navigation } from "react-native-navigation";
 
-import SourceContext from "~/utils/SourceContext";
 import URL from "~/utils/URL";
+import { Pages, usePage } from "~/navigation/Pages";
+import { useSources } from "~/navigation/Providers";
 
 import type { Chapter, ChapterKey } from "~/sources/API";
 
-export default function ChapterPage() {
-  const navigation = useContext(NavigationContext);
-  const url: string = navigation.getParam("url");
+export default function ChapterPage({ url }: {
+  url: string,
+}) {
+  const { chapter, isLoading } = useChapter(url);
 
-  const onLoad = (chapter: ?Chapter) => {
-    navigation.setParams({ chapter });
-  };
+  useTitle(chapter);
+
+  if (isLoading) {
+    return <Text style={styles.loading}>Loading…</Text>;
+  }
+
+  if (chapter == null) {
+    return <Text style={styles.error}>Unable to load chapter</Text>;
+  }
 
   return (
-    <FetchChapter Component={Page} url={url} onLoad={onLoad} />
+    <ScrollView style={styles.scrollable}>
+      <NavButtons chapter={chapter} />
+
+      <HTML
+        value={chapter.contents}
+        style={styles.content}
+        stylesheet={stylesheet}
+      />
+
+      <NavButtons chapter={chapter} />
+    </ScrollView>
   );
 }
 
-function FetchChapter({ Component, url, onLoad }: {
-  Component: typeof React.Component | Function,
-  url: string,
-  onLoad: (?Chapter) => void,
-}) {
+function useChapter(url) {
+  const Sources = useSources();
   const host = useMemo(() => URL.parse(url).host, [url]);
   const [chapter, setChapter] = useState(null);
-  const [isLoading, setLoading] = useState(true);
-  const Sources = useContext(SourceContext);
+  const [isLoading, setLoading] = useState(false);
+
+  // Trigger load when URL changes
+  useEffect(() => setLoading(true), [url]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -66,46 +83,17 @@ function FetchChapter({ Component, url, onLoad }: {
       .finally(() => setLoading(false));
   }, [isLoading]);
 
-  useEffect(() => onLoad(chapter), [chapter]);
-
-  if (isLoading) {
-    return <Text style={styles.loading}>Loading…</Text>;
-  }
-
-  return (
-    <Component chapter={chapter} />
-  );
-}
-
-function Page({ chapter }: {
-  chapter: Chapter,
-}) {
-  if (chapter == null) {
-    return null;
-  }
-
-  return (
-    <ScrollView style={styles.scrollable}>
-      <NavButtons chapter={chapter} />
-
-      <HTML
-        value={chapter.contents}
-        style={styles.content}
-        stylesheet={stylesheet}
-      />
-
-      <NavButtons chapter={chapter} />
-    </ScrollView>
-  );
+  return {
+    chapter,
+    isLoading,
+  };
 }
 
 function NavButtons({ chapter }: {
   chapter: Chapter,
 }) {
-  const navigation = useContext(NavigationContext);
-
-  const navigateNext = () => navigation.replace("Chapter", { url: chapter.next });
-  const navigatePrev = () => navigation.replace("Chapter", { url: chapter.previous });
+  const navigateNext = useNavigate(chapter.next);
+  const navigatePrev = useNavigate(chapter.previous);
 
   return (
     <View style={styles.navButtons}>
@@ -127,16 +115,49 @@ function NavButtons({ chapter }: {
 function NavButton({ text, disabled, navigate }: {
   text: string,
   disabled: boolean,
-  navigate: () => void,
+  navigate: ?() => void,
 }) {
   return (
     <Button
       title={text}
       onPress={navigate}
-      disabled={disabled}
+      disabled={disabled || navigate == null}
       type="clear"
     />
   );
+}
+
+function useTitle(chapter: ?Chapter) {
+  const { id } = usePage();
+
+  if (chapter == null) {
+    return;
+  }
+
+  Navigation.mergeOptions(id, {
+    topBar: {
+      title: {
+        text: chapter.title,
+      },
+    },
+  });
+}
+
+function useNavigate(url: ?string) {
+  const { id } = usePage();
+
+  if (url == null) {
+    return null;
+  }
+
+  return () => Navigation.push(id, {
+    component: {
+      name: Pages.chapter,
+      passProps: {
+        url: url,
+      },
+    },
+  });
 }
 
 const styles = StyleSheet.create({
@@ -145,6 +166,10 @@ const styles = StyleSheet.create({
   },
   loading: {
     margin: 16,
+  },
+  error: {
+    margin: 16,
+    color: "red",
   },
   content: {
     marginHorizontal: 16,
@@ -174,11 +199,3 @@ const stylesheet = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-ChapterPage.navigationOptions = ({ navigation }) => {
-  const { title }: Chapter = navigation.getParam("chapter") || {};
-
-  return {
-    title,
-  };
-};

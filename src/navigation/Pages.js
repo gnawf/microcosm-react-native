@@ -1,5 +1,8 @@
 // @flow
 
+import React, { createContext, useContext } from "react";
+import { Navigation } from "react-native-navigation";
+
 import CatalogPage from "~/pages/CatalogPage";
 import SourcePage from "~/pages/SourcePage";
 import DownloadsPage from "~/pages/DownloadsPage";
@@ -7,15 +10,43 @@ import LibraryPage from "~/pages/LibraryPage";
 import NovelPage from "~/pages/NovelPage";
 import ChapterPage from "~/pages/ChapterPage";
 
-const Pages: {
-  [string]: any,
-} = {
-  Catalog: CatalogPage,
-  Source: SourcePage,
-  Downloads: DownloadsPage,
-  Library: LibraryPage,
-  Novel: NovelPage,
-  Chapter: ChapterPage,
+export const Pages = {
+  catalog: "Catalog",
+  source: "Source",
+  downloads: "Downloads",
+  library: "Library",
+  novel: "Novel",
+  chapter: "Chapter",
 };
 
-export default Pages;
+const PageContext = createContext<?string>(null);
+
+const register = (name, Component) => Navigation.registerComponent(
+  name,
+  () => ({ componentId, ...props }) => (
+    <PageContext.Provider value={componentId}>
+      <Component {...props} />
+    </PageContext.Provider>
+  ),
+);
+
+export function usePage(): {
+  id: string,
+} {
+  const page = useContext(PageContext);
+
+  if (page == null) {
+    throw new Error("Unable to find page");
+  }
+
+  return { id: page };
+}
+
+export function bootstrap() {
+  register(Pages.catalog, CatalogPage);
+  register(Pages.source, SourcePage);
+  register(Pages.downloads, DownloadsPage);
+  register(Pages.library, LibraryPage);
+  register(Pages.novel, NovelPage);
+  register(Pages.chapter, ChapterPage);
+}

@@ -15,10 +15,11 @@ import {
 import {
   ListItem,
 } from "react-native-elements";
-import { NavigationContext } from "react-navigation";
+import { Navigation } from "react-native-navigation";
 
-import SourceContext from "~/utils/SourceContext";
 import URL from "~/utils/URL";
+import { Pages, usePage } from "~/navigation/Pages";
+import { useSources } from "~/navigation/Providers";
 
 import type { Chapter, NovelKey } from "~/sources/API";
 
@@ -44,7 +45,7 @@ function FetchChapters({ Component, id, host, ...props }: {
 }) {
   const [chapters, setChapters] = React.useState(null);
   const [isLoading, setLoading] = React.useState(true);
-  const Sources = useContext(SourceContext);
+  const Sources = useSources();
 
   useEffect(() => {
     if (!isLoading) {
@@ -84,10 +85,10 @@ function keyExtractor(chapter: Chapter) {
   return chapter.id;
 }
 
-function ChapterView({ item }) {
-  const navigation = useContext(NavigationContext);
-
-  const navigate = () => navigation.navigate("Chapter", { url: item.url });
+function ChapterView({ item }: {
+  item: Chapter,
+}) {
+  const navigate = useNavigate(item);
 
   return (
     <TouchableOpacity onPress={navigate}>
@@ -98,6 +99,19 @@ function ChapterView({ item }) {
       />
     </TouchableOpacity>
   );
+}
+
+function useNavigate(chapter: Chapter) {
+  const { id } = usePage();
+
+  return () => Navigation.push(id, {
+    component: {
+      name: Pages.chapter,
+      passProps: {
+        url: chapter.url,
+      },
+    },
+  });
 }
 
 function LoadingView() {

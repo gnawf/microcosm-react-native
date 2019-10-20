@@ -9,21 +9,20 @@ import {
   Text,
   View,
 } from "react-native";
-import { NavigationContext } from "react-navigation";
+import { Navigation } from "react-native-navigation";
 
 import NovelsGridView from "~/components/NovelsGridView";
-import RealmContext from "~/utils/RealmContext";
-import SourceContext from "~/utils/SourceContext";
+import { usePage } from "~/navigation/Pages";
+import { useSources } from "~/navigation/Providers";
 
 import type { Novel, Source } from "~/sources/API";
 
-export default function SourcePage(props: {
+export default function SourcePage({ id, ...props }: {
+  id: string,
   props: Object,
 }) {
-  const navigation = useContext(NavigationContext);
-  const Sources = useContext(SourceContext);
+  const Sources = useSources();
 
-  const id = navigation.getParam("id");
   const source = Sources.by.id[id];
 
   return <Page {...props} source={source} />;
@@ -32,34 +31,9 @@ export default function SourcePage(props: {
 function Page({ source }: {
   source: Source,
 }) {
-  const realm = useContext(RealmContext);
-  const [novels, setNovels] = useState([]);
-  const [isLoading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
-  const [cursor, setCursor] = useState(1);
+  const { novels, isLoading, hasMore, fetch } = useLoading(source);
 
-  const fetch = () => {
-    if (!isLoading) {
-      setLoading(true);
-    }
-  };
-
-  useEffect(() => {
-    if (!isLoading) {
-      return;
-    }
-
-    (async () => {
-      try {
-        const items = await source.novels.list({ cursor });
-        setHasMore(items.length > 0);
-        setNovels([...novels, ...items]);
-        setCursor(cursor + 1);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [isLoading]);
+  useTitle(source);
 
   return (
     <NovelsGridView
@@ -70,8 +44,52 @@ function Page({ source }: {
   );
 }
 
-SourcePage.navigationOptions = ({ navigation }) => {
-  return {
-    title: navigation.getParam("title"),
+function useLoading(source) {
+  const [novels, setNovels] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [cursor, setCursor] = useState(1);
+
+  useEffect(() => {
+    if (!isLoading) {
+      return;
+    }
+
+    source.novels.list({ cursor }).then((items) => {
+      setHasMore(items.length > 0);
+      setNovels([...novels, ...items]);
+      setCursor(cursor + 1);
+    }).finally(() => setLoading(false));
+  }, [isLoading]);
+
+  const fetch = () => {
+    if (!isLoading) {
+      setLoading(true);
+    }
   };
-};
+
+  return {
+    novels,
+    isLoading,
+    hasMore,
+    fetch,
+  };
+}
+
+function useTitle(source) {
+  const { id } = usePage();
+
+  useEffect(() => {
+    if (source == null) {
+      return;
+    }
+
+    Navigation.mergeOptions(id, {
+      topBar: {
+        title: {
+          text: source.name,
+        },
+      },
+    });
+  }, [source]);
+}

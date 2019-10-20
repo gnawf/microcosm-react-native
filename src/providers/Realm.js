@@ -1,50 +1,6 @@
-//@flow
+// @flow
 
-import React, {
-  createContext,
-  useEffect,
-  useState,
-} from "react";
 import Realm from "realm";
-
-import RealmContext from "~/utils/RealmContext";
-
-function useRealm() {
-  const [realm, setRealm] = useState(null);
-
-  useEffect(() => {
-    let realm: Realm;
-
-    (async () => {
-      realm = await Realm.open(config);
-      setRealm(realm);
-    })();
-
-    return () => {
-      if (realm != null) {
-        realm.close();
-      }
-    };
-  }, []);
-
-  return realm;
-}
-
-export default function ({ children }: {
-  children: any,
-}) {
-  const realm = useRealm();
-
-  if (realm == null) {
-    return null;
-  }
-
-  return (
-    <RealmContext.Provider value={realm}>
-      {children}
-    </RealmContext.Provider>
-  );
-}
 
 const NovelSchema = {
   name: "Novel",
@@ -89,3 +45,7 @@ const config = {
   ],
   deleteRealmIfMigrationNeeded: true,
 };
+
+export default function build(): Realm {
+  return Realm.open(config);
+}
