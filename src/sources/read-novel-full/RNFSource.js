@@ -117,7 +117,7 @@ class _Chapters implements Chapters {
 
     const id = URL.parse(url).path.match(/\/(.*?)(?:\.[a-z]+)$/)[1];
 
-    const title = $(".chr-title").text().match(/chapter\s+\d+/i)[0];
+    const title = $(".chr-title").text();
 
     const contents = html($("#chr-content").first());
 

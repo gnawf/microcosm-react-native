@@ -130,17 +130,19 @@ function NavButton({ text, disabled, navigate }: {
 function useTitle(chapter: ?Chapter) {
   const { id } = usePage();
 
-  if (chapter == null) {
-    return;
-  }
-
-  Navigation.mergeOptions(id, {
-    topBar: {
-      title: {
-        text: chapter.title,
-      },
-    },
-  });
+  useEffect(() => {
+    if (chapter != null) {
+      const match = chapter.title.match(/chapter\s+\d+/i);
+      const title = match ? match[0] : chapter.title;
+      Navigation.mergeOptions(id, {
+        topBar: {
+          title: {
+            text: title,
+          },
+        },
+      });
+    }
+  }, [chapter]);
 }
 
 function useNavigate(url: ?string) {
