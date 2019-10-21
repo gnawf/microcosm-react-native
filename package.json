@@ -22,7 +22,8 @@
     "react-native-super-grid": "^3.1.1",
     "react-native-vector-icons": "^6.6.0",
     "realm": "^3.2.0",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",

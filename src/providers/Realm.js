@@ -40,7 +40,9 @@ const LibrarySchema = {
 
 const ReadingLogSchema = {
   name: "ReadingLog",
+  primaryKey: "id",
   properties: {
+    id: "string",
     date: "date",
     chapter: "Chapter",
   },

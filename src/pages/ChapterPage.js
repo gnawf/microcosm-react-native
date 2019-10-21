@@ -20,6 +20,7 @@ import {
 } from "react-native-elements";
 import HTML from "react-native-htmlview";
 import { Navigation } from "react-native-navigation";
+import uuidv4 from "uuid/v4";
 
 import URL from "~/utils/URL";
 import { Pages, usePage } from "~/navigation/Pages";
@@ -183,6 +184,7 @@ function useReadingLog(chapter: ?Chapter) {
     const id = setTimeout(() => {
       realm.write(() => {
         realm.create("ReadingLog", {
+          id: uuidv4(),
           date: new Date(),
           chapter,
         }, "modified");
