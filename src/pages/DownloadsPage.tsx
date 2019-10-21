@@ -9,23 +9,23 @@ import {
   FlatList,
 } from "react-native";
 
-import ChapterListItem from "~/components/ChapterListItem";
+import { Chapter } from "sources/API";
+import ChapterListItem from "components/ChapterListItem";
 import { Navigation } from "react-native-navigation";
-import { usePage } from "~/navigation/Pages";
-import { useRealm } from "~/navigation/Providers";
+import { usePage } from "navigation/Pages";
+import { useRealm } from "navigation/Providers";
 
-import type { Chapter } from "~/sources/API";
 
 export default function DownloadsPage() {
   const [ignored, forceUpdate] = useReducer((x) => !x, false);
   const realm = useRealm();
 
-  const chapters = useMemo(() => {
-    return realm.objects("Chapter").filtered("contents != null");
+  const chapters: Realm.Results<Chapter> = useMemo(() => {
+    return realm.objects("Chapter").filtered("contents != null") as Realm.Results<any>;
   }, [realm]);
 
   useEffect(() => {
-    const listener = () => forceUpdate();
+    const listener = () => forceUpdate(null);
     chapters.addListener(listener);
     return () => chapters.removeListener(listener);
   }, [chapters]);

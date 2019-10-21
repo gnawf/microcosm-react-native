@@ -58,6 +58,6 @@ const config = {
   deleteRealmIfMigrationNeeded: true,
 };
 
-export default function build(): Realm {
+export default function build(): Promise<Realm> {
   return Realm.open(config);
 }

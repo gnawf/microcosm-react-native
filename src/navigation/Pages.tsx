@@ -1,15 +1,19 @@
 // @flow
 
-import React, { createContext, useContext } from "react";
+import React, {
+  ComponentType,
+  createContext,
+  useContext,
+} from "react";
 import { Navigation } from "react-native-navigation";
 
-import CatalogPage from "~/pages/CatalogPage";
-import SourcePage from "~/pages/SourcePage";
-import RecentsPage from "~/pages/RecentsPage";
-import DownloadsPage from "~/pages/DownloadsPage";
-import LibraryPage from "~/pages/LibraryPage";
-import NovelPage from "~/pages/NovelPage";
-import ChapterPage from "~/pages/ChapterPage";
+import CatalogPage from "pages/CatalogPage";
+import SourcePage from "pages/SourcePage";
+import RecentsPage from "pages/RecentsPage";
+import DownloadsPage from "pages/DownloadsPage";
+import LibraryPage from "pages/LibraryPage";
+import NovelPage from "pages/NovelPage";
+import ChapterPage from "pages/ChapterPage";
 
 export const Pages = {
   catalog: "Catalog",
@@ -21,9 +25,9 @@ export const Pages = {
   chapter: "Chapter",
 };
 
-const PageContext = createContext<?string>(null);
+const PageContext = createContext<string | null>(null);
 
-const register = (name, Component) => Navigation.registerComponent(
+const register = (name: string, Component: ComponentType<any>) => Navigation.registerComponent(
   name,
   () => ({ componentId, ...props }) => (
     <PageContext.Provider value={componentId}>

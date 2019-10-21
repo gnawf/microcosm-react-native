@@ -1,26 +1,21 @@
-// @flow
-
 import Realm from "realm";
-import RealmSource from "~/sources/realm/RealmSource";
-import RNFSource from "~/sources/read-novel-full/RNFSource";
-
-import type { Source } from "~/sources/API";
-import type { Mode } from "~/sources/realm/RealmSource";
+import { Source } from "sources/API";
+import RealmSource, { Mode } from "sources/realm/RealmSource";
+import RNFSource from "sources/read-novel-full/RNFSource";
 
 type StringToSource = {
-  [string]: Source
+  [key: string]: Source;
 };
 
 type Values = {
-  all: Array<Source>,
+  all: Source[],
   by: {
     id: StringToSource,
     host: StringToSource,
   }
 };
 
-export type Sources = {
-  ...Values,
+export type Sources = Values & {
   cached: Values,
 };
 
@@ -31,8 +26,8 @@ const sources = [
 function build(realm: Realm, mode: Mode) {
   const all: Array<Source> = sources.map((source) => new RealmSource(source, realm, mode));
 
-  const id = {};
-  const host = {};
+  const id: StringToSource = {};
+  const host: StringToSource = {};
 
   for (const source of all) {
     id[source.id] = source;

@@ -1,5 +1,3 @@
-// @flow
-
 import React from "react";
 import {
   TouchableOpacity,
@@ -9,9 +7,8 @@ import {
 } from "react-native-elements";
 
 import { Navigation } from "react-native-navigation";
-import { Pages, usePage } from "~/navigation/Pages";
-
-import type { Chapter } from "~/sources/API";
+import { Pages, usePage } from "navigation/Pages";
+import { Chapter } from "sources/API";
 
 export default function ChapterListItem({ chapter }: {
   chapter: Chapter,

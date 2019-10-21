@@ -14,13 +14,15 @@ type URL =  {
   protocol: string;
   search: string;
   slashes: boolean;
-  resolve: (string) => string;
+  resolve: (url: string) => string;
 };
 
 function parse(url: string): URL {
-  const parsed = (impl.parse(url): any);
+  const parsed = impl.parse(url) as any;
+
   // Base implementatino doesn't give path segments, parse it here
-  parsed.pathSegments = parsed.path.split("/").filter((e) => e.length);
+  parsed.pathSegments = parsed.path.split("/").filter((e: string) => e.length);
+
   return parsed;
 }
 

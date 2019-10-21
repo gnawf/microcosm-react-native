@@ -1,16 +1,16 @@
 module.exports = {
   presets: [
     "module:metro-react-native-babel-preset",
-    "@babel/preset-flow",
   ],
   plugins: [
-    "transform-inline-environment-variables",
     [
-      "babel-plugin-root-import",
+      "module-resolver",
       {
-        root: __dirname,
-        rootPathPrefix: "~/",
-        rootPathSuffix: "src",
+        root: ["./src"],
+        extensions: [".ios.js", ".android.js", ".js", ".ts", ".tsx", ".json"],
+        alias: {
+          "test/*": "./test/",
+        },
       },
     ],
   ],

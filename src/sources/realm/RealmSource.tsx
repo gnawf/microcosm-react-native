@@ -1,8 +1,8 @@
 // @flow
 
-import Realm from "realm";
+import Realm, { UpdateMode } from "realm";
 
-import type { Chapter, Chapters, Novel, Novels, Source } from "~/sources/API";
+import { Chapter, Chapters, Novel, Novels, Source } from "sources/API";
 
 export type Mode = "load" | "save";
 
@@ -75,7 +75,7 @@ class _Novels implements Novels {
 
     realm.write(() => {
       for (const novel of novels) {
-        realm.create("Novel", novel, "modified");
+        realm.create("Novel", novel, UpdateMode.Modified);
       }
     });
   }
@@ -135,7 +135,7 @@ class _Chapters implements Chapters {
           }
         }
 
-        realm.create("Chapter", chapter, "modified");
+        realm.create("Chapter", chapter, UpdateMode.Modified);
       }
     });
   }

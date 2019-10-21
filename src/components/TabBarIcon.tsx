@@ -5,8 +5,6 @@ import {
   Icon,
 } from "react-native-elements";
 
-import Colors from "~/constants/Colors";
-
 const style = {
   marginBottom: -3,
 };
@@ -22,7 +20,7 @@ export default function TabBarIcon({ name, type, focused }: {
       type={type}
       size={26}
       style={style}
-      color={focused ? Colors.tabIconSelected : Colors.tabIconDefault}
+      color={focused ? "black" : "grey"}
     />
   );
 }

@@ -1,10 +1,8 @@
 import { Navigation } from "react-native-navigation";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-import { Pages, bootstrap as pages } from "~/navigation/Pages";
-import { bootstrap as providers } from "~/navigation/Providers";
-
-import React from "react";
+import { Pages, bootstrap as pages } from "navigation/Pages";
+import { bootstrap as providers } from "navigation/Providers";
 
 Navigation.events().registerAppLaunchedListener(async () => {
   await providers();
@@ -17,7 +15,6 @@ Navigation.events().registerAppLaunchedListener(async () => {
     Icon.getImageSource("history", 20),
     Icon.getImageSource("file-download", 20),
   ]);
-
 
   Navigation.setRoot({
     root: {
@@ -34,7 +31,11 @@ Navigation.events().registerAppLaunchedListener(async () => {
 });
 
 
-function stack({ component: name, name: text = name, icon }) {
+function stack({ component: name, name: text = name, icon }: {
+  component: string,
+  name?: string,
+  icon: any,
+}) {
   return {
     stack: {
       children: [

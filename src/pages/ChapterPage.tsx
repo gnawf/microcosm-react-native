@@ -1,14 +1,13 @@
 // @flow
 
 import React, {
-  useContext,
   useEffect,
   useMemo,
   useState,
   useRef,
 } from "react";
 import {
-  FlatList,
+  GestureResponderEvent,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,17 +15,18 @@ import {
 } from "react-native";
 import {
   Button,
-  ListItem,
 } from "react-native-elements";
 import HTML from "react-native-htmlview";
 import { Navigation } from "react-native-navigation";
+import { UpdateMode } from "realm";
 import uuidv4 from "uuid/v4";
 
-import URL from "~/utils/URL";
-import { Pages, usePage } from "~/navigation/Pages";
-import { useRealm, useSources } from "~/navigation/Providers";
+import URL from "utils/URL";
+import { Chapter } from "sources/API";
+import { usePage } from "navigation/Pages";
+import { useRealm, useSources } from "navigation/Providers";
 
-import type { Chapter } from "~/sources/API";
+type OnPress = (event: GestureResponderEvent) => void;
 
 export default function ChapterPage({ url: originalUrl }: {
   url: string,
@@ -50,24 +50,28 @@ export default function ChapterPage({ url: originalUrl }: {
     <ScrollView style={styles.scrollable}>
       <NavButtons chapter={chapter} navigate={setUrl} />
 
-      <HTML
-        value={chapter.contents}
-        style={styles.content}
-        stylesheet={stylesheet}
-      />
+      <View style={styles.content}>
+        <HTML
+          value={chapter.contents || ""}
+          stylesheet={stylesheet}
+        />
+      </View>
 
       <NavButtons chapter={chapter} navigate={setUrl} />
     </ScrollView>
   );
 }
 
-function useChapterHolder(url: string) {
+function useChapterHolder(url: string) :[
+  Chapter | null,
+  (chapter: Chapter | null) => void,
+]{
   const urlRef = useRef<string>(url);
 
   // Store the URL as a reference so all old hooks can access the latest
   useEffect(() => { urlRef.current = url; }, [url]);
 
-  const [chapter, setChapter] = useState(null);
+  const [chapter, setChapter] = useState<Chapter | null>(null);
 
   return [
     chapter,
@@ -121,14 +125,14 @@ function useChapter(url: string) {
 
 function NavButtons({ chapter, navigate }: {
   chapter: Chapter,
-  navigate: (string) => void,
+  navigate: (url: string) => void,
 }) {
   const chapters = useMemo(() => {
     const { previous, next } = chapter;
 
     return {
-      previous: previous != null ? () => navigate(previous) : null,
-      next: next != null ? () => navigate(next) : null,
+      previous: previous != null ? () => navigate(previous) : undefined,
+      next: next != null ? () => navigate(next) : undefined,
     };
   }, [chapter]);
 
@@ -142,7 +146,7 @@ function NavButtons({ chapter, navigate }: {
 
 function NavButton({ text, navigate }: {
   text: string,
-  navigate: ?() => void,
+  navigate: OnPress | undefined,
 }) {
   return (
     <Button
@@ -154,7 +158,7 @@ function NavButton({ text, navigate }: {
   );
 }
 
-function useTitle(chapter: ?Chapter) {
+function useTitle(chapter: Chapter | null) {
   const { id } = usePage();
 
   useEffect(() => {
@@ -172,7 +176,7 @@ function useTitle(chapter: ?Chapter) {
   }, [chapter]);
 }
 
-function useReadingLog(chapter: ?Chapter) {
+function useReadingLog(chapter: Chapter | null) {
   const realm = useRealm();
 
   useEffect(() => {
@@ -187,7 +191,7 @@ function useReadingLog(chapter: ?Chapter) {
           id: uuidv4(),
           date: new Date(),
           chapter,
-        }, "modified");
+        }, UpdateMode.Modified);
       });
     }, 10000);
 

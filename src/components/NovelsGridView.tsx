@@ -1,20 +1,20 @@
-// @flow
-
-import React, { useContext, useMemo } from "react";
+import React from "react";
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  GestureResponderEvent,
 } from "react-native";
 import { FlatGrid } from "react-native-super-grid";
 import { Image } from "react-native-elements";
 import { Navigation } from "react-native-navigation";
 
-import URL from "~/utils/URL";
-import { Pages, usePage } from "~/navigation/Pages";
+import { Novel } from "sources/API";
+import URL from "utils/URL";
+import { Pages, usePage } from "navigation/Pages";
 
-import type { Novel } from "~/sources/API";
+type OnPress = (event: GestureResponderEvent) => void;
 
 type Fetch = () => void;
 
@@ -38,7 +38,7 @@ export default function NovelsGridView({ novels, size = 100, fetch, hasMore }: {
 }
 
 function NovelView({ item }: {
-  item: ?Novel,
+  item: Novel | null,
 }) {
   if (item == null) {
     return <Text style={styles.loading}>Loading…</Text>;
@@ -51,7 +51,7 @@ function NovelView({ item }: {
       <TouchableOpacity onPress={navigate}>
         <Image
           style={styles.cover}
-          source={{ uri: item.image }}
+          source={{ uri: item.image || undefined }}
         />
         <Text style={styles.title} numberOfLines={4}>
           {item.title}
@@ -61,11 +61,11 @@ function NovelView({ item }: {
   );
 }
 
-function useNavigate(novel: ?Novel) {
+function useNavigate(novel: Novel | null): OnPress | undefined {
   const { id } = usePage();
 
   if (novel == null) {
-    return null;
+    return undefined;
   }
 
   return () => {

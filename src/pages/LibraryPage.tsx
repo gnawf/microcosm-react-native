@@ -1,29 +1,28 @@
 // @flow
 
 import React, {
-  useContext,
   useEffect,
   useMemo,
   useReducer,
 } from "react";
-import { FlatList } from "react-native";
 import { Navigation } from "react-native-navigation";
 
-import NovelsGridView from "~/components/NovelsGridView";
-import { usePage } from "~/navigation/Pages";
-import { useRealm } from "~/navigation/Providers";
+import { Library } from "sources/API";
+import NovelsGridView from "components/NovelsGridView";
+import { usePage } from "navigation/Pages";
+import { useRealm } from "navigation/Providers";
 
 export default function LibraryPage() {
   const realm = useRealm();
   const [ignored, forceUpdate] = useReducer((x) => !x, false);
 
-  const library = useMemo(() => realm.objects("Library"), [realm]);
+  const library: Realm.Results<Library> = useMemo(() => realm.objects("Library"), [realm]);
 
   useTitle();
 
   // Auto update view on Realm updates
   useEffect(() => {
-    const listener = () => forceUpdate();
+    const listener = () => forceUpdate(null);
     library.addListener(listener);
     return () => library.removeListener(listener);
   }, [library]);

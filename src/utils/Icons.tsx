@@ -3,9 +3,7 @@
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useState, useEffect } from "react";
 
-import type { MaterialIconsGlyphs } from "react-native-vector-icons/MaterialIcons";
-
-export function useIcon(name: MaterialIconsGlyphs, size?: number, color?: string) {
+export function useIcon(name: string, size?: number, color?: string) {
   const [icon, setIcon] = useState(null);
 
   useEffect(() => {

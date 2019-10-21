@@ -1,28 +1,19 @@
 // @flow
 
-import React, {
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React from "react";
 import {
   FlatList,
   Text,
   TouchableOpacity,
-  View,
 } from "react-native";
 import {
-  Button,
   Card,
-  ListItem,
 } from "react-native-elements";
 import { Navigation } from "react-native-navigation";
 
-import NovelsGridView from "~/components/NovelsGridView";
-import { usePage } from "~/navigation/Pages";
-import { useSources } from "~/navigation/Providers";
-
-import type { Source } from "~/sources/API";
+import { Source } from "sources/API";
+import { usePage } from "navigation/Pages";
+import { useSources } from "navigation/Providers";
 
 export default function CatalogPage() {
   const Sources = useSources();
@@ -45,7 +36,7 @@ function SourceView({ item }: {
 
   return (
     <TouchableOpacity onPress={navigate}>
-      <Card onClick={navigate}>
+      <Card>
         <Text>
           {item.name}
         </Text>

@@ -1,36 +1,31 @@
 // @flow
 
 import React, {
-  useContext,
   useEffect,
   useMemo,
   useReducer,
   useState,
 } from "react";
 import {
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import {
-  Button,
   Divider,
-  Icon,
   Image,
   ListItem,
 } from "react-native-elements";
 import HTML from "react-native-htmlview";
 import { Navigation } from "react-native-navigation";
+import { UpdateMode } from "realm";
 
-import NovelChapters from "~/components/NovelChapters";
-import URL from "~/utils/URL";
-import { usePage } from "~/navigation/Pages";
-import { useRealm } from "~/navigation/Providers";
-import { useSources } from "~/navigation/Providers";
-import { useIcon } from "~/utils/Icons";
-
-import type { Novel } from "~/sources/API";
+import { Novel } from "sources/API";
+import NovelChapters from "components/NovelChapters";
+import { usePage } from "navigation/Pages";
+import { useRealm } from "navigation/Providers";
+import { useSources } from "navigation/Providers";
+import { useIcon } from "utils/Icons";
 
 export default function NovelPage({ id, host }: {
   id: string,
@@ -60,7 +55,7 @@ export default function NovelPage({ id, host }: {
 
 function useNovel(id: string, host: string) {
   const Sources = useSources();
-  const [novel, setNovel] = useState(null);
+  const [novel, setNovel] = useState<Novel | null>(null);
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => setLoading(true), [id, host]);
@@ -86,14 +81,14 @@ function Header({ novel }: {
     <View>
       <Image
         style={styles.coverBackground}
-        source={{ uri: novel.image }}
+        source={{ uri: novel.image || undefined }}
         blurRadius={2}
       />
 
       <View style={styles.container}>
         <Image
           style={styles.cover}
-          source={{ uri: novel.image }}
+          source={{ uri: novel.image || undefined }}
         />
       </View>
 
@@ -105,10 +100,9 @@ function Header({ novel }: {
         bottomDivider
       />
 
-      <HTML
-        style={styles.description}
-        value={novel.description}
-      />
+      <View style={styles.description}>
+        <HTML value={novel.description || ""} />
+      </View>
 
       <Divider />
 
@@ -121,7 +115,7 @@ function Header({ novel }: {
   );
 }
 
-function useTitle(novel: ?Novel) {
+function useTitle(novel: Novel | null) {
   const { id } = usePage();
 
   if (novel == null) {
@@ -137,7 +131,7 @@ function useTitle(novel: ?Novel) {
   });
 }
 
-function useLibraryButton(novel: ?Novel) {
+function useLibraryButton(novel: Novel | null) {
   const [ignored, forceUpdate] = useReducer((x) => !x, false);
 
   const { id } = usePage();
@@ -152,7 +146,7 @@ function useLibraryButton(novel: ?Novel) {
 
   // Auto update navigation button upon library changes
   useEffect(() => {
-    const listener = () => forceUpdate();
+    const listener = () => forceUpdate(null);
     library.addListener(listener);
     return () => library.removeListener(listener);
   }, [library]);
@@ -169,7 +163,7 @@ function useLibraryButton(novel: ?Novel) {
         if (library.length) {
           realm.delete(library);
         } else {
-          realm.create("Library", { id: novel.id, novel }, "modified");
+          realm.create("Library", { id: novel.id, novel }, UpdateMode.Modified);
         }
       });
     });

@@ -1,25 +1,17 @@
-// @flow
-
 import React, {
-  useContext,
   useEffect,
   useState,
 } from "react";
-import {
-  Text,
-  View,
-} from "react-native";
 import { Navigation } from "react-native-navigation";
 
-import NovelsGridView from "~/components/NovelsGridView";
-import { usePage } from "~/navigation/Pages";
-import { useSources } from "~/navigation/Providers";
-
-import type { Novel, Source } from "~/sources/API";
+import { Novel, Source } from "sources/API";
+import NovelsGridView from "components/NovelsGridView";
+import { usePage } from "navigation/Pages";
+import { useSources } from "navigation/Providers";
 
 export default function SourcePage({ id, ...props }: {
   id: string,
-  props: Object,
+  props: any[],
 }) {
   const Sources = useSources();
 
@@ -31,7 +23,7 @@ export default function SourcePage({ id, ...props }: {
 function Page({ source }: {
   source: Source,
 }) {
-  const { novels, isLoading, hasMore, fetch } = useLoading(source);
+  const { novels, hasMore, fetch } = useLoading(source);
 
   useTitle(source);
 
@@ -44,8 +36,8 @@ function Page({ source }: {
   );
 }
 
-function useLoading(source) {
-  const [novels, setNovels] = useState([]);
+function useLoading(source: Source) {
+  const [novels, setNovels] = useState<Novel[]>([]);
   const [isLoading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [cursor, setCursor] = useState(1);
@@ -76,7 +68,7 @@ function useLoading(source) {
   };
 }
 
-function useTitle(source) {
+function useTitle(source: Source) {
   const { id } = usePage();
 
   useEffect(() => {

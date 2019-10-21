@@ -1,7 +1,4 @@
-// @flow
-
 import React, {
-  useContext,
   useEffect,
   useState,
 } from "react";
@@ -9,24 +6,16 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  View,
 } from "react-native";
-import {
-  ListItem,
-} from "react-native-elements";
-import { Navigation } from "react-native-navigation";
 
-import URL from "~/utils/URL";
-import ChapterListItem from "~/components/ChapterListItem";
-import { Pages, usePage } from "~/navigation/Pages";
-import { useSources } from "~/navigation/Providers";
-
-import type { Chapter, NovelId } from "~/sources/API";
+import { Chapter, NovelId } from "sources/API";
+import ChapterListItem from "components/ChapterListItem";
+import { useSources } from "navigation/Providers";
 
 export default function NovelChapters({ id, host, ListHeaderComponent }: {
   id: NovelId,
   host: string,
-  ListHeaderComponent?: typeof React.Component | Function,
+  ListHeaderComponent?: JSX.Element,
 }) {
   const { chapters, isLoading } = useChapters(id, host);
 
@@ -43,8 +32,8 @@ export default function NovelChapters({ id, host, ListHeaderComponent }: {
 
 function useChapters(id: NovelId, host: string) {
   const Sources = useSources();
-  const [chapters, setChapters] = React.useState(null);
-  const [isLoading, setLoading] = React.useState(true);
+  const [chapters, setChapters] = useState<Chapter[] | null>(null);
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isLoading) {

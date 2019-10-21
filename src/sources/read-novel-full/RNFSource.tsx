@@ -1,10 +1,13 @@
-// @flow
-
-import { Chapters, Novels, Source } from "~/sources/API";
-import URL from "~/utils/URL";
-import HTML from "~/utils/HTML";
-
-import type { Chapter, Novel, NovelId } from "~/sources/API";
+import {
+  Chapter,
+  Chapters,
+  Novel,
+  NovelId,
+  Novels,
+  Source,
+} from "sources/API";
+import URL from "utils/URL";
+import cheerio from "browserify/cheerio";
 
 const RNF_URL = URL.parse("https://readnovelfull.com");
 
@@ -30,6 +33,7 @@ const IDS = function () {
   function unformat(id: string) {
     return id.startsWith(prefix) ? id.substring(prefix.length) : id;
   }
+
   return { format, chapterId, novelId, unformat };
 }();
 
@@ -50,13 +54,13 @@ export default class RNFSource implements Source {
 }
 
 class _Novels implements Novels {
-  async get(id) {
+  async get(id: NovelId) : Promise<Novel> {
     const url = RNF_URL.resolve(`/${IDS.unformat(id)}.html`);
     const result = await fetch(url);
     const body = await result.text();
-    const $ = HTML.load(body);
+    const $ = cheerio.load(body);
     const title = $(".title").first().text().trim();
-    const description = html($(".desc-text").first());
+    const description = html($, $(".desc-text").first());
     const image = $(".book img").first().attr("src");
 
     return {
@@ -68,26 +72,28 @@ class _Novels implements Novels {
     };
   }
 
-  async list({ cursor = 1 }) {
+  async list({ cursor = 1 }: {
+    cursor?: any,
+  }): Promise<Novel[]> {
     return this.query({
-      page: (cursor: number),
+      page: cursor as number,
     });
   }
 
-  async search(query) {
+  async search(query: string): Promise<Novel[]> {
     return this.query({});
   }
 
   async query({ query = "", page = 1 }: {
     query?: string,
     page?: number,
-  }) {
+  }): Promise<Novel[]> {
     const novels: Array<Novel> = [];
 
     const searchUrl = RNF_URL.resolve(`/search?keyword=${encodeURIComponent(query)}&page=${page}`);
     const result = await fetch(searchUrl);
     const body = await result.text();
-    const $ = HTML.load(body);
+    const $ = cheerio.load(body);
     const rows = $(".list-novel .row");
 
     for (let i = 0; i < rows.length; i++) {
@@ -120,18 +126,18 @@ class _Novels implements Novels {
 }
 
 class _Chapters implements Chapters {
-  async get(url) {
-    const chapters: Array<Chapter> = [];
-
+  async get(url: string): Promise<Chapter> {
     const result = await fetch(url);
     const body = await result.text();
-    const $ = HTML.load(body);
+    const $ = cheerio.load(body);
     const title = $(".chr-title").text();
-    const contents = html($("#chr-content").first());
+    const contents = html($, $("#chr-content").first());
     const novelUrl = $("a.novel-title[href]").attr("href");
-    let previous, next;
+    let previous = null, next = null;
 
-    $(".chr-nav a.btn[href]").forEach((anchor) => {
+    $(".chr-nav a.btn[href]").each((_, element) => {
+      const anchor = $(element);
+
       const text = anchor.text().toLowerCase();
       if (text.indexOf("next") >= 0) {
         next = URL.resolve(url, anchor.attr("href"));
@@ -152,14 +158,16 @@ class _Chapters implements Chapters {
     };
   }
 
-  async list(id) {
+  async list(id: NovelId, args: {
+    cursor?: any,
+  }): Promise<Chapter[]> {
     const chapters: Array<Chapter> = [];
 
     const novelId = await this.getNovelId(id);
     const url = RNF_URL.resolve(`ajax/chapter-option?novelId=${novelId}&currentChapterId=1`);
     const result = await fetch(url);
     const body = await result.text();
-    const $ = HTML.load(body);
+    const $ = cheerio.load(body);
     const rows = $("select option");
 
     for (let i = 0; i < rows.length; i++) {
@@ -191,16 +199,18 @@ class _Chapters implements Chapters {
     const url = RNF_URL.resolve(`/${slug}.html`);
     const result = await fetch(url);
     const body = await result.text();
-    const $ = HTML.load(body);
+    const $ = cheerio.load(body);
     const id = $("[data-novel-id]").attr("data-novel-id");
 
     return parseInt(id);
   }
 }
 
-function html(input) {
+function html($: CheerioStatic, input: Cheerio) {
   input.find("br, script").remove();
-  input.find("p").forEach((paragraph) => {
+  input.find("p").each((_, element) => {
+    const paragraph = $(element);
+
     if (paragraph.text().trim().length === 0) {
       paragraph.remove();
     }
