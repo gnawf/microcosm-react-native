@@ -4,9 +4,34 @@ import { Chapters, Novels, Source } from "~/sources/API";
 import URL from "~/utils/URL";
 import HTML from "~/utils/HTML";
 
-import type { Chapter, Novel } from "~/sources/API";
+import type { Chapter, Novel, NovelId } from "~/sources/API";
 
 const RNF_URL = URL.parse("https://readnovelfull.com");
+
+const IDS = function () {
+  const prefix = "@rnf/";
+
+  function stripExtension(input: string) {
+    return input.replace(/\.[a-z]+$/, "");
+  }
+  function format(id: string) {
+    id = stripExtension(id);
+    return id.startsWith(prefix) ? id : prefix + id;
+  }
+  function chapterId(url: string) {
+    const pathSegments = URL.parse(url).pathSegments;
+    const cid = pathSegments[pathSegments.length - 1];
+    return format(cid);
+  }
+  function novelId(url: string) {
+    const nid = URL.parse(url).pathSegments[0];
+    return format(nid);
+  }
+  function unformat(id: string) {
+    return id.startsWith(prefix) ? id.substring(prefix.length) : id;
+  }
+  return { format, chapterId, novelId, unformat };
+}();
 
 export default class RNFSource implements Source {
   id: string;
@@ -26,20 +51,16 @@ export default class RNFSource implements Source {
 
 class _Novels implements Novels {
   async get(id) {
-    const url = RNF_URL.resolve(`/${id}.html`);
-
+    const url = RNF_URL.resolve(`/${IDS.unformat(id)}.html`);
     const result = await fetch(url);
-
     const body = await result.text();
-
     const $ = HTML.load(body);
-
     const title = $(".title").first().text().trim();
     const description = html($(".desc-text").first());
     const image = $(".book img").first().attr("src");
 
     return {
-      id,
+      id: IDS.format(id),
       url,
       title,
       description,
@@ -63,14 +84,10 @@ class _Novels implements Novels {
   }) {
     const novels: Array<Novel> = [];
 
-    const url = RNF_URL.resolve(`/search?keyword=${encodeURIComponent(query)}&page=${page}`);
-
-    const result = await fetch(url);
-
+    const searchUrl = RNF_URL.resolve(`/search?keyword=${encodeURIComponent(query)}&page=${page}`);
+    const result = await fetch(searchUrl);
     const body = await result.text();
-
     const $ = HTML.load(body);
-
     const rows = $(".list-novel .row");
 
     for (let i = 0; i < rows.length; i++) {
@@ -83,18 +100,15 @@ class _Novels implements Novels {
         continue;
       }
 
-      const href = anchor.attr("href");
+      const novelUrl = anchor.attr("href");
 
-      // Gets the last path segment & strips out any file extension
-      const id = href.match(/\/([^/]+?)(\.[a-z]+)?\/?$/i)[1];
-
-      if (href.indexOf("/search?keyword") >= 0) {
+      if (novelUrl.indexOf("/search?idword") >= 0) {
         continue;
       }
 
       novels.push({
-        id,
-        url: URL.resolve(url, href),
+        id: IDS.novelId(novelUrl),
+        url: URL.resolve(searchUrl, novelUrl),
         title,
         description: null,
         image: image.replace(/t-\d+x\d+/i, "t-300x439"),
@@ -110,17 +124,11 @@ class _Chapters implements Chapters {
     const chapters: Array<Chapter> = [];
 
     const result = await fetch(url);
-
     const body = await result.text();
-
     const $ = HTML.load(body);
-
-    const id = URL.parse(url).path.match(/\/(.*?)(?:\.[a-z]+)$/)[1];
-
     const title = $(".chr-title").text();
-
     const contents = html($("#chr-content").first());
-
+    const novelUrl = $("a.novel-title[href]").attr("href");
     let previous, next;
 
     $(".chr-nav a.btn[href]").forEach((anchor) => {
@@ -133,28 +141,25 @@ class _Chapters implements Chapters {
     });
 
     return {
-      id,
+      id: IDS.chapterId(url),
       url,
       previous,
       next,
       title,
       contents,
+      novelId: IDS.novelId(novelUrl),
+      novel: null,
     };
   }
 
   async list(id) {
     const chapters: Array<Chapter> = [];
 
-    const _id = await this.getNovelId(id);
-
-    const url = RNF_URL.resolve(`ajax/chapter-option?novelId=${_id}&currentChapterId=1`);
-
+    const novelId = await this.getNovelId(id);
+    const url = RNF_URL.resolve(`ajax/chapter-option?novelId=${novelId}&currentChapterId=1`);
     const result = await fetch(url);
-
     const body = await result.text();
-
     const $ = HTML.load(body);
-
     const rows = $("select option");
 
     for (let i = 0; i < rows.length; i++) {
@@ -164,30 +169,29 @@ class _Chapters implements Chapters {
       const href = chapter.attr("value");
 
       const chapterUrl = URL.resolve(url, href);
-      const id = URL.parse(chapterUrl).path.match(/\/(.*?)(?:\.[a-z]+)$/)[1];
 
       chapters.push({
-        id,
+        id: IDS.chapterId(href),
         url: chapterUrl,
         previous: null,
         next: null,
         title,
         contents: null,
+        novelId: IDS.novelId(chapterUrl),
+        novel: null,
       });
     }
 
     return chapters;
   }
 
-  async getNovelId(slug): Promise<number> {
+  async getNovelId(slug: NovelId): Promise<number> {
+    slug = IDS.unformat(slug);
+
     const url = RNF_URL.resolve(`/${slug}.html`);
-
     const result = await fetch(url);
-
     const body = await result.text();
-
     const $ = HTML.load(body);
-
     const id = $("[data-novel-id]").attr("data-novel-id");
 
     return parseInt(id);

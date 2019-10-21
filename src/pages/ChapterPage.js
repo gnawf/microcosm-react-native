@@ -25,7 +25,7 @@ import URL from "~/utils/URL";
 import { Pages, usePage } from "~/navigation/Pages";
 import { useRealm, useSources } from "~/navigation/Providers";
 
-import type { Chapter, ChapterKey } from "~/sources/API";
+import type { Chapter } from "~/sources/API";
 
 export default function ChapterPage({ url: originalUrl }: {
   url: string,

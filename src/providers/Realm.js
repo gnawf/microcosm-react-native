@@ -24,6 +24,8 @@ const ChapterSchema = {
     next: "string?",
     title: "string",
     contents: "string?",
+    novelId: "string",
+    novel: "Novel?",
   },
 };
 

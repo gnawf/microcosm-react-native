@@ -9,6 +9,7 @@ type URL =  {
   hostname: string;
   href: string;
   path: string;
+  pathSegments: Array<string>,
   pathname: string;
   protocol: string;
   search: string;
@@ -17,7 +18,10 @@ type URL =  {
 };
 
 function parse(url: string): URL {
-  return (impl.parse(url): any);
+  const parsed = (impl.parse(url): any);
+  // Base implementatino doesn't give path segments, parse it here
+  parsed.pathSegments = parsed.path.split("/").filter((e) => e.length);
+  return parsed;
 }
 
 export default {
