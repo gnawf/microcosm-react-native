@@ -1,5 +1,3 @@
-// @flow
-
 export type NovelId = string;
 
 export type ChapterId = string;

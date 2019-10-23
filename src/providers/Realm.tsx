@@ -1,5 +1,3 @@
-// @flow
-
 import Realm from "realm";
 
 const NovelSchema = {

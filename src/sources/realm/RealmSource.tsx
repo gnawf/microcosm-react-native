@@ -1,5 +1,3 @@
-// @flow
-
 import Realm, { UpdateMode } from "realm";
 
 import { NovelId, Chapter, Chapters, Novel, Novels, Source } from "sources/API";

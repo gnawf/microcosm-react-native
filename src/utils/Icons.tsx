@@ -1,5 +1,3 @@
-// @flow
-
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useState, useEffect } from "react";
 

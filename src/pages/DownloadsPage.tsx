@@ -1,5 +1,3 @@
-// @flow
-
 import React, {
   useMemo,
   useReducer,

@@ -1,5 +1,3 @@
-// @flow
-
 import impl from "url";
 
 type URL =  {
