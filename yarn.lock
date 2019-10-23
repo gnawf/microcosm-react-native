@@ -7544,10 +7544,10 @@ react-native-htmlview@^0.15.0:
     entities "^1.1.1"
     htmlparser2-without-node-native "^3.9.2"
 
-react-native-navigation@^2.27.9:
-  version "2.27.9"
-  resolved "https://registry.yarnpkg.com/react-native-navigation/-/react-native-navigation-2.27.9.tgz#3836fbc441304428442cca3e2d9c75101eab3a74"
-  integrity sha512-B81M6QwvwKj+PTGlW8ougaQBmfRE559vjKieIqB5Lb20ozqxoqeaJV6Z/aeAf01CSSuT373es8QEuseiFcmq5w==
+react-native-navigation@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-navigation/-/react-native-navigation-3.2.0.tgz#3ed6cb82062959ba3b6c0ca6937e17575ac4d948"
+  integrity sha512-HfdLkwiEEIBGyg0cspSzL/gk+tQ1bfbiF5VvzGcB5t0ym1RRUpkfcf+Uv0P0SoKNDQ6UlUTGCUrjnqfVivwK9w==
   dependencies:
     hoist-non-react-statics "3.x.x"
     lodash "4.17.x"

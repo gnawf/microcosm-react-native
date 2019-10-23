@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
+    "android": "cd ./android && ./gradlew app:assembleDebug && ./gradlew installDebug",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
@@ -17,7 +17,7 @@
     "react-native-elements": "^1.2.6",
     "react-native-gesture-handler": "^1.4.1",
     "react-native-htmlview": "^0.15.0",
-    "react-native-navigation": "^2.27.9",
+    "react-native-navigation": "^3.2.0",
     "react-native-super-grid": "^3.1.1",
     "react-native-vector-icons": "^6.6.0",
     "realm": "^3.2.0",
