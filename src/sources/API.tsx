@@ -39,7 +39,7 @@ export interface Library {
 export interface Source {
   id: string;
   name: string;
-  hosts: Array<string>;
+  hosts: string[];
   novels: Novels;
   chapters: Chapters;
 }
@@ -48,13 +48,13 @@ export interface Novels {
   get(id: NovelId): Promise<Novel | null>;
   list(args: {
     cursor?: any,
-  }): Promise<Array<Novel>>;
-  search(query: string): Promise<Array<Novel>>;
+  }): Promise<Novel[] | null>;
+  search(query: string): Promise<Novel[] | null>;
 }
 
 export interface Chapters {
   get(url: string): Promise<Chapter | null>;
   list(id: NovelId, args: {
     cursor?: any,
-  }): Promise<Array<Chapter>>;
+  }): Promise<Chapter[] | null>;
 }

@@ -2,7 +2,7 @@
 
 import Realm, { UpdateMode } from "realm";
 
-import { Chapter, Chapters, Novel, Novels, Source } from "sources/API";
+import { NovelId, Chapter, Chapters, Novel, Novels, Source } from "sources/API";
 
 export type Mode = "load" | "save";
 
@@ -33,25 +33,29 @@ class _Novels implements Novels {
     this._mode = mode;
   }
 
-  async get(id) {
+  async get(id: NovelId) {
     switch (this._mode) {
       case "load":
-        return this._realm.objects("Novel").filtered("id = $0", id)[0];
+        return this._realm.objects<Novel>("Novel").filtered("id = $0", id)[0];
       case "save":
-        const result = await this._novels.get.apply(this._novels, arguments);
-        this._persist([result]);
+        const result = await this._novels.get.apply(this._novels, [id]);
+        if (result != null) {
+          this._persist([result]);
+        }
         return result;
       default:
         throw new Error("stub");
     }
   }
 
-  async list({ cursor }) {
+  async list(args: {
+    cursor?: any,
+  }) {
     switch (this._mode) {
       case "load":
-        return this._realm.objects("Novel");
+        return this._realm.objects<Novel>("Novel") as any as Novel[];
       case "save":
-        const result = await this._novels.list.apply(this._novels, arguments);
+        const result = await this._novels.list.apply(this._novels, [args]);
         this._persist(result);
         return result;
       default:
@@ -59,10 +63,10 @@ class _Novels implements Novels {
     }
   }
 
-  async search(query) {
+  async search(query: string) {
     switch (this._mode) {
       case "save":
-        const result = await this._novels.search.apply(this._novels, arguments);
+        const result = await this._novels.search.apply(this._novels, [query]);
         this._persist(result);
         return result;
       default:
@@ -70,7 +74,11 @@ class _Novels implements Novels {
     }
   }
 
-  _persist(novels: Array<Novel>) {
+  _persist(novels: Novel[] | null) {
+    if (novels == null) {
+      return;
+    }
+
     const realm = this._realm;
 
     realm.write(() => {
@@ -95,20 +103,24 @@ class _Chapters implements Chapters {
   async get(url: string) {
     switch (this._mode) {
       case "load":
-        return this._realm.objects("Chapter").filtered("url = $0", url)[0];
+        return this._realm.objects<Chapter>("Chapter").filtered("url = $0", url)[0];
       case "save":
-        const result = await this._chapters.get.apply(this._chapters, arguments);
-        this._persist([result]);
+        const result = await this._chapters.get.apply(this._chapters, [url]);
+        if (result != null) {
+          this._persist([result]);
+        }
         return result;
       default:
         throw new Error("stub");
     }
   }
 
-  async list(id, { cursor }) {
+  async list(id: NovelId, args: {
+    cursor?: any,
+  }) {
     switch (this._mode) {
       case "save":
-        const result = await this._chapters.list.apply(this._chapters, arguments);
+        const result = await this._chapters.list.apply(this._chapters, [id, args]);
         this._persist(result);
         return result;
       default:
@@ -116,25 +128,47 @@ class _Chapters implements Chapters {
     }
   }
 
-  _persist(chapters: Array<Chapter>) {
+  _persist(chapters: Array<Chapter> | null) {
+    if (chapters == null) {
+      return;
+    }
+
     const realm = this._realm;
-    const query = realm.objects("Chapter");
+
+    // Determine which incomplete chapters already exist in the database
+    // We do not want to insert incomplete chapters if they already exist
+    const incomplete = chapters.filter((chapter) => chapter.contents == null);
+    let inserts = chapters.length;
+    let doNotCreate: { [key: string]: boolean } = {};
+
+    // Query in chunks otherwise Realm crashes
+    const chunkSize = 1247;
+    const numChunks = Math.ceil(incomplete.length / chunkSize);
+    for (let chunkNo = 0; chunkNo < numChunks; chunkNo++) {
+      const offset = chunkNo * chunkSize;
+      const chunk = incomplete.slice(offset, offset + chunkSize);
+
+      const ids = chunk.map((_, index) => `id = $${index}`).join(" OR ");
+      const values = chunk.map((chapter) => chapter.id);
+      const query = realm.objects<Chapter>("Chapter").filtered(ids, ...values);
+
+      doNotCreate = query.reduce((object, chapter) => {
+        inserts--;
+        object[chapter.id] = true;
+        return object;
+      }, doNotCreate);
+    }
+
+    // Do nothing
+    if (inserts === 0) {
+      return;
+    }
 
     realm.write(() => {
-      for (let chapter of chapters) {
-        // Fill in missing data from existing rows
-        if (chapter.contents == null) {
-          const [result] = query.filtered("id = $0", chapter.id);
-          if (result != null) {
-            chapter = { ...chapter };
-            for (const key in chapter) {
-              if (chapter[key] == null) {
-                chapter[key] = result[key];
-              }
-            }
-          }
+      for (const chapter of chapters) {
+        if (doNotCreate[chapter.id]) {
+          continue;
         }
-
         realm.create("Chapter", chapter, UpdateMode.Modified);
       }
     });
