@@ -2,6 +2,7 @@ import Realm from "realm";
 import { Source } from "sources/API";
 import RealmSource, { Mode } from "sources/realm/RealmSource";
 import RNFSource from "sources/read-novel-full/RNFSource";
+import PiaotianSource from "sources/piao-tian/PiaotianSource";
 
 type StringToSource = {
   [key: string]: Source;
@@ -21,6 +22,7 @@ export type Sources = Values & {
 
 const sources = [
   new RNFSource(),
+  new PiaotianSource(),
 ];
 
 function build(realm: Realm, mode: Mode) {

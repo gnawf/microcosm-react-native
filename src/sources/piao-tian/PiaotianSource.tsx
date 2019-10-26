@@ -12,8 +12,13 @@ import { element } from "prop-types";
 
 const BASE_URL = URL.parse('https://www.ptwxz.com');
 const BOOK_URL = URL.parse(BASE_URL.resolve('/bookinfo'));
-const READ_URL = URL.parse(BASE_URL.resolve('/html'));
+const CHAPTERS_URL = URL.parse(BASE_URL.resolve('/html'));
 const LIST_URL = URL.parse(BASE_URL.resolve('/quanben/index.html'));
+
+function _novelId(novelUrl: string): string {
+  const arr = novelUrl.split('/');
+  return arr[arr.length - 2] + URL.removeExtension(arr[arr.length - 1]);
+}
 
 export default class PiaotianSource implements Source {
   id: string;
@@ -53,7 +58,7 @@ class _Novels implements Novels {
     const result = await fetch(url);
     const body = await result.text();
     const $ = cheerio.load(body);
-    const links: String[] = [];
+    const links: string[] = [];
     $('table.grid tbody tr td:nth-child(1) a').each((_, element) => {
       const a = $(element)
       links.push(a.attr('href'));
@@ -62,8 +67,7 @@ class _Novels implements Novels {
     const novels: Novel[] = []
     const promises: Promise<Novel | null>[] = [];
     links.forEach((link) => {
-      const arr = link.split('/');
-      const id = arr[arr.length - 2] + arr[arr.length -1];
+      const id = _novelId(link);
       const novelFetch = this.get(id);
       novelFetch.then((res) => {
         if (res) {
@@ -75,7 +79,7 @@ class _Novels implements Novels {
     await Promise.all(promises);
     return novels;
   }
-  
+
   async search(query: string): Promise<Novel[] | null> {
     throw new Error("Method not implemented.");
   }
@@ -83,9 +87,62 @@ class _Novels implements Novels {
 
 class _Chapters implements Chapters {
   async get(url: string): Promise<Chapter | null> {
-    throw new Error("Method not implemented.");
+    const result = await fetch(url);
+    const body = await result.text();
+    const $ = cheerio.load(body);
+
+    const linkBar = $('div.toplink').first();
+
+    const prevButton = linkBar.first();
+    const previous = prevButton.attr('href') == 'index.html' ? null : prevButton.attr('href');
+
+    const nextButton = linkBar.get(2);
+    const next = nextButton.attr('href') == 'index.html' ? null : nextButton.attr('href');
+
+    const novelUrl = linkBar.last().attr('href');
+    const urlArr = url.split('/');
+
+    const contents = $('#content');
+    contents.find('h1').remove();
+    contents.find('table').remove();
+    contents.find('div').remove();
+
+    return {
+      id: URL.removeExtension(urlArr[urlArr.length - 1]),
+      url,
+      previous,
+      next,
+      title: $('h1').first().text().trim(),
+      contents: contents.html(),
+      novelId: _novelId(novelUrl),
+      novel: null,
+    };
   }
-  async list(id: string, args: { cursor?: any; }): Promise<Chapter[] | null> {
-    throw new Error("Method not implemented.");
+
+  async list(novelId: NovelId, args: { cursor?: any; }): Promise<Chapter[] | null> {
+    const url = CHAPTERS_URL.resolve(`/${novelId}/.html`);
+    const result = await fetch(url);
+    const body = await result.text();
+    const $ = cheerio.load(body);
+    const aElements = $('ul li a').toArray();
+    const chapters: Chapter[] = [];
+    aElements.forEach(a => {
+      const id = URL.removeExtension(a.attribs['href']);
+      const chapterUrl = url + a.attribs['href'];
+      const title = a.data == undefined ? chapterUrl : a.data; // Could use something else other than the chapterUrl if there is no title
+      chapters.push({
+        id: id,
+        url: chapterUrl,
+        previous: null,
+        next: null,
+        title,
+        contents: null,
+        novelId: novelId,
+        novel: null,
+      })
+    });
+
+    return chapters;
   }
+
 }

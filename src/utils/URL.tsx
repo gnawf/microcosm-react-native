@@ -24,7 +24,12 @@ function parse(url: string): URL {
   return parsed;
 }
 
+function removeExtension(url: string) {
+  return url.replace(/\.[a-z]+$/, "");
+}
+
 export default {
   resolve: impl.resolve,
   parse,
+  removeExtension,
 };
